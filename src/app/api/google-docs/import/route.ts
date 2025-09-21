@@ -94,7 +94,7 @@ function extractTextFromDocument(document: { body?: { content?: Array<{ paragrap
   return content.trim()
 }
 
-function extractParagraphText(paragraph: { elements?: Array<{ textRun?: { content?: string } }> }): string {
+function extractParagraphText(paragraph: { elements?: Array<{ textRun?: { content?: string; textStyle?: { bold?: boolean; italic?: boolean } } }> }): string {
   let text = ''
   
   if (paragraph.elements) {
