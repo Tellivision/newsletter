@@ -2,7 +2,6 @@
 
 import Link from 'next/link'
 import Image from 'next/image'
-import { usePathname } from 'next/navigation'
 import {
   Home,
   FileText,
@@ -13,33 +12,7 @@ import {
   Sparkles
 } from 'lucide-react'
 
-const navigation = [
-  {
-    name: 'Dashboard',
-    href: '/',
-    icon: Home,
-  },
-  {
-    name: 'Newsletter Editor',
-    href: '/editor',
-    icon: FileText,
-  },
-  {
-    name: 'Subscribers',
-    href: '/subscribers',
-    icon: Users,
-  },
-  {
-    name: 'Analytics',
-    href: '/analytics',
-    icon: BarChart3,
-  },
-  {
-    name: 'Settings',
-    href: '/settings',
-    icon: Settings,
-  },
-]
+
 
 export function Sidebar() {
   return (

@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
-  // Add any custom props here if needed
+  variant?: 'default' | 'outline'
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
