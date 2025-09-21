@@ -8,5 +8,11 @@ export function createClient() {
   )
 }
 
-// Export a singleton instance for backward compatibility
-export const supabase = createClient()
+// Lazy-loaded singleton instance for backward compatibility
+let _supabase: ReturnType<typeof createClient> | null = null
+export const supabase = () => {
+  if (!_supabase) {
+    _supabase = createClient()
+  }
+  return _supabase
+}
