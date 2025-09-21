@@ -53,13 +53,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         scopes: 'openid email profile https://www.googleapis.com/auth/documents https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file',
       },
     })
-    
+
     if (error) {
       console.error('Error signing in with Google:', error)
-      throw error
+      return { error }
     }
-    
-    return data
+
+    if (data?.url) {
+      window.location.href = data.url
+    }
+
+    return { error: null }
   }
 
   const signOut = async () => {
@@ -67,11 +71,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { error } = await supabase.auth.signOut()
     if (error) {
       console.error('Error signing out:', error)
-      throw error
+      return { error }
     }
-    
+
     // Redirect to sign-in page after successful sign-out
     window.location.href = '/auth/signin'
+
+    return { error: null }
   }
 
   const value = {
