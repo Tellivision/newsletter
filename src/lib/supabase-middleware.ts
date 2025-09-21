@@ -71,7 +71,9 @@ export async function updateSession(request: NextRequest) {
     // No user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
     url.pathname = '/auth/signin'
-    return NextResponse.redirect(url, { request })
+    const response = NextResponse.redirect(url)
+    response.cookies.setAll(supabaseResponse.cookies.getAll())
+    return response
   }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
