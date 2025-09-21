@@ -7,7 +7,7 @@ import { DashboardGrid, DashboardCard } from '@/components/layout/dashboard-grid
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { PlusCircle, Users, FileText, TrendingUp, Calendar } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
 const mockStats = {
@@ -23,12 +23,11 @@ const recentNewsletters = [
   { id: 3, title: 'Monthly Newsletter', status: 'draft', updatedAt: '1 week ago' },
 ]
 
-export default function Dashboard() {
-  const { user, loading } = useAuth()
+// OAuth callback handler component
+function OAuthCallbackHandler() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Handle OAuth callback
   useEffect(() => {
     const code = searchParams.get('code')
     const error = searchParams.get('error')
@@ -39,6 +38,12 @@ export default function Dashboard() {
       router.replace('/')
     }
   }, [searchParams, router])
+
+  return null
+}
+
+function DashboardContent() {
+  const { user, loading } = useAuth()
 
   if (loading) {
     return (
@@ -185,5 +190,16 @@ export default function Dashboard() {
         </Card>
       </div>
     </MainLayout>
+  )
+}
+
+export default function Dashboard() {
+  return (
+    <>
+      <Suspense fallback={null}>
+        <OAuthCallbackHandler />
+      </Suspense>
+      <DashboardContent />
+    </>
   )
 }
