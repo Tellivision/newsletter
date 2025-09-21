@@ -5,7 +5,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 export async function GET() {
   try {
     // Test public client connection
-    const { data: publicTest, error: publicError } = await supabase
+    const { error: publicError } = await supabase
       .from('users')
       .select('count')
       .limit(1)
@@ -20,7 +20,7 @@ export async function GET() {
     }
 
     // Test admin client connection
-    const { data: adminTest, error: adminError } = await supabaseAdmin
+    const { error: adminError } = await supabaseAdmin
       .from('users')
       .select('count')
       .limit(1)
@@ -44,12 +44,13 @@ export async function GET() {
       }
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Supabase connection test failed:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json({
       success: false,
       error: 'Connection test failed',
-      details: error.message
+      details: errorMessage
     }, { status: 500 })
   }
 }

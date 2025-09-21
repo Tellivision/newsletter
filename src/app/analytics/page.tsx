@@ -18,15 +18,14 @@ import {
   Pie,
   Cell
 } from 'recharts';
-import { 
-  TrendingUp, 
-  Mail, 
-  Eye, 
-  MousePointer, 
+import {
+  TrendingUp,
+  Mail,
+  Eye,
+  MousePointer,
   Users,
   Calendar,
-  Download,
-  Filter
+  Download
 } from 'lucide-react';
 
 const deliveryData = [

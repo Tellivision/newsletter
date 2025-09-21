@@ -176,7 +176,7 @@ export default function SendNewsletterModal({
                   name="sendType"
                   value="now"
                   checked={sendType === 'now'}
-                  onChange={(e) => setSendType(e.target.value as any)}
+                  onChange={(e) => setSendType(e.target.value as 'now' | 'scheduled')}
                   className="text-blue-600"
                 />
                 <div className="flex items-center space-x-2">
@@ -191,7 +191,7 @@ export default function SendNewsletterModal({
                   name="sendType"
                   value="scheduled"
                   checked={sendType === 'scheduled'}
-                  onChange={(e) => setSendType(e.target.value as any)}
+                  onChange={(e) => setSendType(e.target.value as 'now' | 'scheduled')}
                   className="text-blue-600"
                 />
                 <div className="flex items-center space-x-2">
@@ -206,7 +206,7 @@ export default function SendNewsletterModal({
                   name="sendType"
                   value="test"
                   checked={sendType === 'test'}
-                  onChange={(e) => setSendType(e.target.value as any)}
+                  onChange={(e) => setSendType(e.target.value as 'now' | 'scheduled' | 'test')}
                   className="text-blue-600"
                 />
                 <div className="flex items-center space-x-2">

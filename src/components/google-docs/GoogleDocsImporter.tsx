@@ -12,10 +12,7 @@ interface GoogleDocsImporterProps {
   onImport: (content: string, title: string) => void
 }
 
-interface DocumentData {
-  title: string
-  content: string
-}
+
 
 export function GoogleDocsImporter({ onImport }: GoogleDocsImporterProps) {
   const { user } = useAuth()
@@ -110,7 +107,7 @@ export function GoogleDocsImporter({ onImport }: GoogleDocsImporterProps) {
             className="w-full"
           />
           <p className="text-xs text-gray-500">
-            Paste the URL of your Google Docs document. Make sure it's shared with your account or is public.
+            Paste the URL of your Google Docs document. Make sure it&apos;s shared with your account or is public.
           </p>
         </div>
 

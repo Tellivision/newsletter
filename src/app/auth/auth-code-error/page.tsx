@@ -1,3 +1,5 @@
+import Link from 'next/link'
+
 export default function AuthCodeError() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -25,12 +27,12 @@ export default function AuthCodeError() {
           </div>
         </div>
         <div>
-          <a
+          <Link
             href="/"
             className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
           >
             Return to Home
-          </a>
+          </Link>
         </div>
       </div>
     </div>

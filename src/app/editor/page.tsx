@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -57,7 +57,7 @@ export default function NewsletterEditor() {
       const response = await fetch('/api/subscribers?status=active');
       if (response.ok) {
         const data = await response.json();
-        const activeEmails = data.subscribers.map((sub: any) => sub.email);
+        const activeEmails = data.subscribers.map((sub: { email: string }) => sub.email);
         setSubscribers(activeEmails);
         setSubscriberStats({
           total: data.stats.total,

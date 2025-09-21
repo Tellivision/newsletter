@@ -3,11 +3,12 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Search, Eye, Download, Sparkles } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -72,7 +73,7 @@ export default function TemplatesPage() {
     return matchesCategory && matchesSearch
   })
 
-  const useTemplate = async (template: Template) => {
+  const selectTemplate = async (template: Template) => {
     try {
       // Store template data in localStorage for the editor
       localStorage.setItem('selectedTemplate', JSON.stringify({
@@ -163,26 +164,12 @@ export default function TemplatesPage() {
               <CardContent>
                 {/* Template Preview */}
                 <div className="bg-gray-100 rounded-lg p-2 mb-4 min-h-[120px] flex items-center justify-center overflow-hidden">
-                  <img 
-                    src={template.thumbnail} 
+                  <Image
+                    src={template.thumbnail}
                     alt={`${template.name} preview`}
+                    width={200}
+                    height={100}
                     className="w-full h-auto max-h-[100px] object-contain rounded"
-                    onError={(e) => {
-                      // Fallback to placeholder if image fails to load
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      const parent = target.parentElement;
-                      if (parent) {
-                        parent.innerHTML = `
-                          <div class="text-center text-gray-500">
-                            <svg class="h-8 w-8 mx-auto mb-2" fill="currentColor" viewBox="0 0 20 20">
-                              <path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" />
-                            </svg>
-                            <p class="text-sm">Template Preview</p>
-                          </div>
-                        `;
-                      }
-                    }}
                   />
                 </div>
 
@@ -210,7 +197,7 @@ export default function TemplatesPage() {
                     Preview
                   </Button>
                   <Button
-                    onClick={() => useTemplate(template)}
+                    onClick={() => selectTemplate(template)}
                     size="sm"
                     className="flex-1"
                   >
@@ -247,7 +234,7 @@ export default function TemplatesPage() {
                 </div>
                 <div className="flex gap-2">
                   <Button
-                    onClick={() => useTemplate(previewTemplate)}
+                    onClick={() => selectTemplate(previewTemplate)}
                     size="sm"
                   >
                     Use Template

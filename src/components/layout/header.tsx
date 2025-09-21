@@ -3,7 +3,7 @@
 import { Bell, Search, User, LogOut, Settings } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useAuth } from '@/contexts/AuthContext'
+import Image from 'next/image'
 
 interface HeaderProps {
   title?: string
@@ -62,9 +63,11 @@ export function Header({ title, user }: HeaderProps) {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" size="icon" className="rounded-full hover:bg-brand-gray text-brand-primary">
                     {user.image ? (
-                      <img
+                      <Image
                         src={user.image}
                         alt={user.name}
+                        width={32}
+                        height={32}
                         className="h-8 w-8 rounded-full border-2 border-brand-primary"
                       />
                     ) : (

@@ -51,15 +51,16 @@ export async function POST(request: NextRequest) {
       success: true
     })
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Google Docs import error:', error)
-    
-    if (error.code === 403) {
+
+    const errorObj = error as { code?: number }
+    if (errorObj.code === 403) {
       return NextResponse.json(
         { error: 'Access denied. Please make sure the document is shared with your account or is public.' },
         { status: 403 }
       )
-    } else if (error.code === 404) {
+    } else if (errorObj.code === 404) {
       return NextResponse.json(
         { error: 'Document not found. Please check the URL and try again.' },
         { status: 404 }
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function extractTextFromDocument(document: any): string {
+function extractTextFromDocument(document: { body?: { content?: Array<{ paragraph?: unknown; table?: unknown }> }; title?: string }): string {
   let content = ''
   
   if (document.body && document.body.content) {
@@ -93,7 +94,7 @@ function extractTextFromDocument(document: any): string {
   return content.trim()
 }
 
-function extractParagraphText(paragraph: any): string {
+function extractParagraphText(paragraph: { elements?: Array<{ textRun?: { content?: string } }> }): string {
   let text = ''
   
   if (paragraph.elements) {
@@ -123,7 +124,7 @@ function extractParagraphText(paragraph: any): string {
   return text
 }
 
-function extractTableText(table: any): string {
+function extractTableText(table: { tableRows?: Array<{ tableCells?: Array<{ content?: Array<{ paragraph?: unknown }> }> }> }): string {
   let tableText = ''
   
   if (table.tableRows) {

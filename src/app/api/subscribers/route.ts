@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseSession, createUnauthorizedResponse } from '@/lib/auth-helpers'
 
 // Mock database - in real app, this would be a proper database
-let mockSubscribers = [
+const mockSubscribers = [
   {
     id: '1',
     email: 'john.doe@example.com',

@@ -193,7 +193,7 @@ export default function ScheduledNewslettersPage() {
                   No scheduled newsletters
                 </h3>
                 <p className="text-gray-600 mb-4">
-                  You don't have any newsletters scheduled for sending.
+                  You don&apos;t have any newsletters scheduled for sending.
                 </p>
                 <Button onClick={() => window.location.href = '/editor'}>
                   Create Newsletter

@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useAuth } from '@/contexts/AuthContext'
 import { MainLayout } from '@/components/layout/main-layout'
 import { DashboardGrid, DashboardCard } from '@/components/layout/dashboard-grid'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { PlusCircle, Users, FileText, TrendingUp, Calendar } from 'lucide-react'
 import { useEffect } from 'react'
@@ -63,7 +63,7 @@ export default function Dashboard() {
           Welcome back, {user.name || 'User'}!
         </h1>
         <p className="text-brand-primary">
-          Here's what's happening with your newsletters today.
+          Here&apos;s what&apos;s happening with your newsletters today.
         </p>
       </div>
 

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseSession, createUnauthorizedResponse } from '@/lib/auth-helpers'
 
 // Mock database for scheduled newsletters
-let scheduledNewsletters: Array<{
+const scheduledNewsletters: Array<{
   id: string
   userId: string
   subject: string
@@ -15,7 +15,7 @@ let scheduledNewsletters: Array<{
 }> = []
 
 // GET - Fetch scheduled newsletters
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const { session, error } = await getSupabaseSession()
     

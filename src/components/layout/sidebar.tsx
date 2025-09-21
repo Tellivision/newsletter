@@ -3,15 +3,12 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { cn } from '@/lib/utils'
-import { Button } from '@/components/ui/button'
-import { 
-  Home, 
-  FileText, 
-  Users, 
-  BarChart3, 
+import {
+  Home,
+  FileText,
+  Users,
+  BarChart3,
   Settings,
-  PlusCircle,
   Clock,
   Sparkles
 } from 'lucide-react'
@@ -45,8 +42,6 @@ const navigation = [
 ]
 
 export function Sidebar() {
-  const pathname = usePathname()
-
   return (
     <div className="flex h-full w-64 flex-col bg-white border-r border-brand-gray-dark relative shadow-sm">
       {/* Logo */}
@@ -63,10 +58,10 @@ export function Sidebar() {
       <nav className="flex-1 px-4 py-6 mt-36">
         <ul className="space-y-2">
           <li>
-            <a href="/" className="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-brand-primary hover:text-white transition-colors duration-200">
+            <Link href="/" className="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-brand-primary hover:text-white transition-colors duration-200">
               <Home className="mr-3 h-5 w-5" />
               Dashboard
-            </a>
+            </Link>
           </li>
           <li>
             <a href="/editor" className="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-brand-primary hover:text-white transition-colors duration-200">
