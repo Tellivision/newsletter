@@ -55,12 +55,18 @@ export default function Dashboard() {
     return null // Middleware will redirect to sign-in
   }
 
+  const uiUser = {
+    name: (user.user_metadata as any)?.name || (user.user_metadata as any)?.full_name || (user.email ? user.email.split('@')[0] : 'User'),
+    email: user.email || '',
+    image: (user.user_metadata as any)?.avatar_url || (user.user_metadata as any)?.picture,
+  }
+
   return (
-    <MainLayout title="Dashboard" user={user}>
+    <MainLayout title="Dashboard" user={uiUser}>
       {/* Welcome Section */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-brand-secondary mb-2">
-          Welcome back, {user.name || 'User'}!
+          Welcome back, {uiUser.name || 'User'}!
         </h1>
         <p className="text-brand-primary">
           Here&apos;s what&apos;s happening with your newsletters today.
