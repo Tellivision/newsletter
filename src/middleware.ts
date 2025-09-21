@@ -2,6 +2,13 @@ import { type NextRequest } from 'next/server'
 import { updateSession } from '@/lib/supabase-middleware'
 
 export async function middleware(request: NextRequest) {
+  // Skip middleware for test endpoints
+  if (request.nextUrl.pathname.startsWith('/api/test-supabase') || 
+      request.nextUrl.pathname.startsWith('/api/test-oauth') ||
+      request.nextUrl.pathname.startsWith('/api/debug-oauth')) {
+    return NextResponse.next()
+  }
+  
   return await updateSession(request)
 }
 

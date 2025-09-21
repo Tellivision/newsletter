@@ -143,8 +143,8 @@ export default function SubscribersPage() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Subscribers</h1>
-            <p className="text-gray-600 mt-1">Manage your newsletter subscribers</p>
+            <h1 className="text-3xl font-bold text-brand-secondary">Subscribers</h1>
+            <p className="text-brand-primary mt-1">Manage your newsletter subscribers</p>
           </div>
           <div className="flex gap-3">
             <Button
@@ -165,7 +165,7 @@ export default function SubscribersPage() {
             </Button>
             <Button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+              className="flex items-center gap-2"
             >
               <UserPlus className="h-4 w-4" />
               Add Subscriber
@@ -179,10 +179,10 @@ export default function SubscribersPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Total Subscribers</p>
-                  <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+                  <p className="text-sm font-medium text-brand-primary">Total Subscribers</p>
+                  <p className="text-2xl font-bold text-brand-secondary">{stats.total}</p>
                 </div>
-                <Users className="h-8 w-8 text-blue-600" />
+                <Users className="h-8 w-8 text-brand-primary" />
               </div>
             </CardContent>
           </Card>
@@ -191,10 +191,10 @@ export default function SubscribersPage() {
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm font-medium text-gray-600">Active</p>
-                  <p className="text-2xl font-bold text-green-600">{stats.active}</p>
+                  <p className="text-sm font-medium text-brand-primary">Active</p>
+                  <p className="text-2xl font-bold text-brand-secondary">{stats.active}</p>
                 </div>
-                <Mail className="h-8 w-8 text-green-600" />
+                <Mail className="h-8 w-8 text-brand-primary" />
               </div>
             </CardContent>
           </Card>

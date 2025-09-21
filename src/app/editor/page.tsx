@@ -134,8 +134,8 @@ export default function NewsletterEditor() {
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">Newsletter Editor</h1>
-            <p className="text-gray-600 mt-1">Create and customize your newsletter content</p>
+            <h1 className="text-3xl font-bold text-brand-secondary">Newsletter Editor</h1>
+            <p className="text-brand-primary mt-1">Create and customize your newsletter content</p>
           </div>
           <div className="flex gap-3">
             <Button
@@ -157,7 +157,7 @@ export default function NewsletterEditor() {
             </Button>
             <Button
               onClick={handleSend}
-              className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+              className="flex items-center gap-2"
               disabled={!newsletter.subject || !newsletter.content}
             >
               <Send className="h-4 w-4" />
@@ -184,7 +184,7 @@ export default function NewsletterEditor() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-brand-secondary mb-2">
                         Subject Line
                       </label>
                       <Input
@@ -195,7 +195,7 @@ export default function NewsletterEditor() {
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-brand-secondary mb-2">
                         Preview Text
                       </label>
                       <Input
@@ -231,9 +231,9 @@ export default function NewsletterEditor() {
                 <CardContent>
                   <div className="bg-white border rounded-lg p-6 max-w-2xl mx-auto">
                     <div className="border-b pb-4 mb-4">
-                      <h2 className="text-2xl font-bold text-gray-900">{newsletter.subject || 'Newsletter Subject'}</h2>
+                      <h2 className="text-2xl font-bold text-brand-secondary">{newsletter.subject || 'Newsletter Subject'}</h2>
                       {newsletter.previewText && (
-                        <p className="text-gray-600 mt-2">{newsletter.previewText}</p>
+                        <p className="text-brand-primary mt-2">{newsletter.previewText}</p>
                       )}
                     </div>
                     <div 
@@ -259,16 +259,16 @@ export default function NewsletterEditor() {
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Total Subscribers</span>
-                    <span className="font-semibold">{subscriberStats.total}</span>
+                    <span className="text-sm text-brand-primary">Total Subscribers</span>
+                    <span className="font-semibold text-brand-secondary">{subscriberStats.total}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Active Subscribers</span>
-                    <span className="font-semibold">{subscriberStats.active}</span>
+                    <span className="text-sm text-brand-primary">Active Subscribers</span>
+                    <span className="font-semibold text-brand-secondary">{subscriberStats.active}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Expected Reach</span>
-                    <span className="font-semibold text-green-600">~{Math.floor(subscriberStats.active * 0.95)}</span>
+                    <span className="text-sm text-brand-primary">Expected Reach</span>
+                    <span className="font-semibold text-brand-primary">~{Math.floor(subscriberStats.active * 0.95)}</span>
                   </div>
                 </div>
               </CardContent>

@@ -12,6 +12,7 @@
   --brand-accent: #60a5fa;
   --brand-gray: #f8fafc;
   --brand-gray-dark: #e2e8f0;
+  --brand-gray-light: #f1f5f9;
 }
 
 @theme inline {
@@ -28,6 +29,7 @@
   --color-brand-accent: var(--brand-accent);
   --color-brand-gray: var(--brand-gray);
   --color-brand-gray-dark: var(--brand-gray-dark);
+  --color-brand-gray-light: var(--brand-gray-light);
 }
 
 @media (prefers-color-scheme: dark) {
