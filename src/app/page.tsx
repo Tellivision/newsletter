@@ -55,10 +55,11 @@ export default function Dashboard() {
     return null // Middleware will redirect to sign-in
   }
 
+  const meta = user.user_metadata as { name?: string; full_name?: string; avatar_url?: string; picture?: string }
   const uiUser = {
-    name: (user.user_metadata as any)?.name || (user.user_metadata as any)?.full_name || (user.email ? user.email.split('@')[0] : 'User'),
-    email: user.email || '',
-    image: (user.user_metadata as any)?.avatar_url || (user.user_metadata as any)?.picture,
+    name: meta.name ?? meta.full_name ?? (user.email ? user.email.split('@')[0] : 'User'),
+    email: user.email ?? '',
+    image: meta.avatar_url ?? meta.picture,
   }
 
   return (
