@@ -182,3 +182,5 @@ For support, email support@googleletter.com or create an issue on GitHub.
 ---
 
 **Made with ❤️ for newsletter creators everywhere**
+
+<!-- Deployment trigger: TypeScript fixes complete -->
