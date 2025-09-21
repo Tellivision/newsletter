@@ -1,103 +1,182 @@
-import Image from "next/image";
+'use client'
 
-export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+import Link from 'next/link'
+import { useAuth } from '@/contexts/AuthContext'
+import { MainLayout } from '@/components/layout/main-layout'
+import { DashboardGrid, DashboardCard } from '@/components/layout/dashboard-grid'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { PlusCircle, Users, FileText, TrendingUp, Calendar } from 'lucide-react'
+import { useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+const mockStats = {
+  totalSubscribers: 1247,
+  totalNewsletters: 23,
+  lastSent: 'Yesterday',
+  upcoming: 2
+}
+
+const recentNewsletters = [
+  { id: 1, title: 'Weekly Update #23', status: 'sent', sentAt: '2 days ago' },
+  { id: 2, title: 'Product Launch Announcement', status: 'scheduled', scheduledAt: 'Tomorrow' },
+  { id: 3, title: 'Monthly Newsletter', status: 'draft', updatedAt: '1 week ago' },
+]
+
+export default function Dashboard() {
+  const { user, loading } = useAuth()
+  const router = useRouter()
+  const searchParams = useSearchParams()
+
+  // Handle OAuth callback
+  useEffect(() => {
+    const code = searchParams.get('code')
+    const error = searchParams.get('error')
+    
+    if (code || error) {
+      console.log('OAuth callback detected at root, cleaning URL')
+      // Clean the URL by removing OAuth parameters
+      router.replace('/')
+    }
+  }, [searchParams, router])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+      </div>
+    )
+  }
+
+  if (!user) {
+    return null // Middleware will redirect to sign-in
+  }
+
+  return (
+    <MainLayout title="Dashboard" user={user}>
+      {/* Welcome Section */}
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-brand-secondary mb-2">
+          Welcome back, {user.name || 'User'}!
+        </h1>
+        <p className="text-brand-primary">
+          Here's what's happening with your newsletters today.
+        </p>
+      </div>
+
+      {/* Stats Grid */}
+      <DashboardGrid className="mb-8">
+        <DashboardCard>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-brand-secondary">Total Subscribers</CardTitle>
+              <Users className="h-4 w-4 text-brand-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-brand-secondary">{mockStats.totalSubscribers.toLocaleString()}</div>
+              <p className="text-xs text-brand-primary">
+                +12% from last month
+              </p>
+            </CardContent>
+          </Card>
+        </DashboardCard>
+
+        <DashboardCard>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-brand-secondary">Total Newsletters</CardTitle>
+              <FileText className="h-4 w-4 text-brand-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-brand-secondary">{mockStats.totalNewsletters}</div>
+              <p className="text-xs text-brand-primary">Last sent {mockStats.lastSent}</p>
+            </CardContent>
+          </Card>
+        </DashboardCard>
+
+        <DashboardCard>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-brand-secondary">Open Rate</CardTitle>
+              <TrendingUp className="h-4 w-4 text-brand-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-brand-secondary">24.5%</div>
+              <p className="text-xs text-brand-primary">+2.1% from last month</p>
+            </CardContent>
+          </Card>
+        </DashboardCard>
+
+        <DashboardCard>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-brand-secondary">Upcoming Sends</CardTitle>
+              <Calendar className="h-4 w-4 text-brand-primary" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-brand-secondary">{mockStats.upcoming}</div>
+              <p className="text-xs text-brand-primary">Next: Tomorrow</p>
+            </CardContent>
+          </Card>
+        </DashboardCard>
+      </DashboardGrid>
+
+      {/* Quick Actions */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold text-brand-secondary mb-4">Quick Actions</h2>
+        <div className="flex gap-4">
+          <Button asChild className="bg-brand-primary hover:bg-brand-primary-dark">
+            <Link href="/newsletters/create">
+              <PlusCircle className="mr-2 h-4 w-4" />
+              Create Newsletter
+            </Link>
+          </Button>
+          <Button variant="outline" asChild className="border-brand-primary text-brand-primary hover:bg-brand-primary hover:text-white">
+            <Link href="/subscribers">
+              <Users className="mr-2 h-4 w-4" />
+              View Subscribers
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      {/* Recent Newsletters */}
+      <div>
+        <h2 className="text-xl font-semibold text-brand-secondary mb-4">Recent Newsletters</h2>
+        <Card>
+          <CardContent className="p-0">
+            <div className="divide-y">
+              {recentNewsletters.map((newsletter) => (
+                <div key={newsletter.id} className="p-4 flex items-center justify-between">
+                  <div>
+                    <h3 className="font-medium text-brand-secondary">{newsletter.title}</h3>
+                    <p className="text-sm text-brand-primary">
+                      {newsletter.status === 'sent' && `Sent ${newsletter.sentAt}`}
+                      {newsletter.status === 'scheduled' && `Scheduled for ${newsletter.scheduledAt}`}
+                      {newsletter.status === 'draft' && `Draft • Updated ${newsletter.updatedAt}`}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      newsletter.status === 'sent' ? 'bg-green-100 text-green-800' :
+                      newsletter.status === 'scheduled' ? 'bg-brand-primary text-white' :
+                      'bg-brand-gray text-brand-secondary'
+                    }`}>
+                      {newsletter.status}
+                    </span>
+                    <Button variant="ghost" size="sm" className="text-brand-primary hover:bg-brand-gray">
+                      View
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </MainLayout>
+  )
 }

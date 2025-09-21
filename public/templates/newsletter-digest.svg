@@ -1,0 +1,32 @@
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#f8f9fa"/>
+  <rect width="300" height="45" fill="#1f2937"/>
+  <text x="150" y="25" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">📰 Weekly Digest</text>
+  <text x="150" y="40" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="9" opacity="0.8">Curated content</text>
+  
+  <!-- Article 1 -->
+  <rect x="20" y="60" width="260" height="30" fill="white" stroke="#e5e7eb" rx="4"/>
+  <rect x="25" y="65" width="40" height="12" fill="#3b82f6" rx="2"/>
+  <text x="45" y="73" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="6" font-weight="bold">TRENDING</text>
+  <text x="75" y="73" fill="#1f2937" font-family="Arial, sans-serif" font-size="8" font-weight="bold">Article Title</text>
+  <text x="25" y="83" fill="#6b7280" font-family="Arial, sans-serif" font-size="6">Brief description of the article...</text>
+  
+  <!-- Article 2 -->
+  <rect x="20" y="95" width="260" height="30" fill="white" stroke="#e5e7eb" rx="4"/>
+  <rect x="25" y="100" width="30" height="12" fill="#10b981" rx="2"/>
+  <text x="40" y="108" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="6" font-weight="bold">TOOLS</text>
+  <text x="65" y="108" fill="#1f2937" font-family="Arial, sans-serif" font-size="8" font-weight="bold">New Tool</text>
+  <text x="25" y="118" fill="#6b7280" font-family="Arial, sans-serif" font-size="6">A game-changing tool...</text>
+  
+  <!-- Article 3 -->
+  <rect x="20" y="130" width="260" height="30" fill="white" stroke="#e5e7eb" rx="4"/>
+  <rect x="25" y="135" width="40" height="12" fill="#f59e0b" rx="2"/>
+  <text x="45" y="143" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="6" font-weight="bold">TUTORIAL</text>
+  <text x="75" y="143" fill="#1f2937" font-family="Arial, sans-serif" font-size="8" font-weight="bold">How-to Guide</text>
+  <text x="25" y="153" fill="#6b7280" font-family="Arial, sans-serif" font-size="6">Step-by-step tutorial...</text>
+  
+  <!-- Tip section -->
+  <rect x="20" y="170" width="260" height="20" fill="#f3f4f6" rx="4"/>
+  <text x="150" y="180" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="7" font-weight="bold">💡 Quick Tip</text>
+  <text x="150" y="188" text-anchor="middle" fill="#4b5563" font-family="Arial, sans-serif" font-size="6">Weekly productivity tip</text>
+</svg>

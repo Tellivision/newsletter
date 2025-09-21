@@ -3,6 +3,15 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* GoogLetter Brand Colors */
+  --brand-primary: #2563eb;
+  --brand-primary-dark: #1d4ed8;
+  --brand-primary-light: #3b82f6;
+  --brand-secondary: #1e40af;
+  --brand-accent: #60a5fa;
+  --brand-gray: #f8fafc;
+  --brand-gray-dark: #e2e8f0;
 }
 
 @theme inline {
@@ -10,6 +19,15 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  
+  /* Brand Color Definitions */
+  --color-brand-primary: var(--brand-primary);
+  --color-brand-primary-dark: var(--brand-primary-dark);
+  --color-brand-primary-light: var(--brand-primary-light);
+  --color-brand-secondary: var(--brand-secondary);
+  --color-brand-accent: var(--brand-accent);
+  --color-brand-gray: var(--brand-gray);
+  --color-brand-gray-dark: var(--brand-gray-dark);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,4 +41,22 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Force light mode for better text visibility */
+* {
+  color-scheme: light;
+}
+
+/* Override dark mode to ensure text visibility */
+@media (prefers-color-scheme: dark) {
+  body {
+    background: #ffffff;
+    color: #171717;
+  }
+  
+  :root {
+    --background: #ffffff;
+    --foreground: #171717;
+  }
 }

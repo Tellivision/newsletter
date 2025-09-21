@@ -1,0 +1,16 @@
+<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#f8f9fa"/>
+  <rect width="300" height="50" fill="#2563eb"/>
+  <text x="150" y="30" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Weekly Update</text>
+  <rect x="20" y="70" width="260" height="6" fill="#e5e7eb" rx="3"/>
+  <rect x="20" y="85" width="200" height="4" fill="#d1d5db" rx="2"/>
+  <rect x="20" y="95" width="180" height="4" fill="#d1d5db" rx="2"/>
+  <rect x="20" y="110" width="260" height="1" fill="#e5e7eb"/>
+  <rect x="20" y="120" width="220" height="4" fill="#d1d5db" rx="2"/>
+  <rect x="20" y="130" width="160" height="4" fill="#d1d5db" rx="2"/>
+  <rect x="20" y="145" width="260" height="1" fill="#e5e7eb"/>
+  <rect x="20" y="155" width="200" height="4" fill="#d1d5db" rx="2"/>
+  <rect x="20" y="165" width="140" height="4" fill="#d1d5db" rx="2"/>
+  <circle cx="25" cy="125" r="3" fill="#2563eb"/>
+  <circle cx="25" cy="160" r="3" fill="#2563eb"/>
+</svg>
