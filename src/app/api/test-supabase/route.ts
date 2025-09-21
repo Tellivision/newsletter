@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import { createClient as createSupabaseClient, type PostgrestError } from '@supabase/supabase-js'
 import type { Database } from '@/types/supabase'
 
 export async function GET() {
@@ -35,7 +35,7 @@ export async function GET() {
     }
 
     // Test admin client connection (only if service key is available)
-    let adminError: { code?: string; message?: string } | null = null
+    let adminError: PostgrestError | null = null
     if (supabaseServiceKey) {
       const supabaseAdmin = createSupabaseClient<Database>(supabaseUrl, supabaseServiceKey, {
         auth: { persistSession: false, autoRefreshToken: false },
@@ -44,7 +44,7 @@ export async function GET() {
         .from('subscribers')
         .select('count')
         .limit(1)
-      adminError = adminRes.error as any
+      adminError = adminRes.error
     }
 
     if (adminError && adminError.code !== 'PGRST116') { // PGRST116 is "table not found" which is expected
