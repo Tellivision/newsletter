@@ -6,7 +6,7 @@ export async function GET() {
   try {
     // Test public client connection
     const { error: publicError } = await supabase
-      .from('users')
+      .from('subscribers')
       .select('count')
       .limit(1)
 
@@ -21,7 +21,7 @@ export async function GET() {
 
     // Test admin client connection
     const { error: adminError } = await supabaseAdmin
-      .from('users')
+      .from('subscribers')
       .select('count')
       .limit(1)
 
