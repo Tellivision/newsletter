@@ -72,7 +72,10 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/signin'
     const response = NextResponse.redirect(url)
-    response.cookies.setAll(supabaseResponse.cookies.getAll())
+    // Copy cookies from the Supabase-managed response
+    for (const cookie of supabaseResponse.cookies.getAll()) {
+      response.cookies.set(cookie)
+    }
     return response
   }
 
