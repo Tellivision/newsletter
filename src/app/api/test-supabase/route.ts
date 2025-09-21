@@ -1,9 +1,24 @@
 import { NextResponse } from 'next/server'
-import { supabase } from '@/lib/supabase'
-import { supabaseAdmin } from '@/lib/supabase-admin'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import type { Database } from '@/types/supabase'
 
 export async function GET() {
   try {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+    if (!supabaseUrl || !supabaseAnon) {
+      return NextResponse.json({
+        success: false,
+        error: 'Supabase environment variables are not configured',
+      })
+    }
+
+    const supabase = createSupabaseClient<Database>(supabaseUrl, supabaseAnon, {
+      auth: { persistSession: false, autoRefreshToken: false },
+    })
+
     // Test public client connection
     const { error: publicError } = await supabase
       .from('subscribers')
@@ -19,11 +34,18 @@ export async function GET() {
       }, { status: 500 })
     }
 
-    // Test admin client connection
-    const { error: adminError } = await supabaseAdmin
-      .from('subscribers')
-      .select('count')
-      .limit(1)
+    // Test admin client connection (only if service key is available)
+    let adminError: { code?: string; message?: string } | null = null
+    if (supabaseServiceKey) {
+      const supabaseAdmin = createSupabaseClient<Database>(supabaseUrl, supabaseServiceKey, {
+        auth: { persistSession: false, autoRefreshToken: false },
+      })
+      const adminRes = await supabaseAdmin
+        .from('subscribers')
+        .select('count')
+        .limit(1)
+      adminError = adminRes.error as any
+    }
 
     if (adminError && adminError.code !== 'PGRST116') { // PGRST116 is "table not found" which is expected
       console.error('Admin client error:', adminError)
