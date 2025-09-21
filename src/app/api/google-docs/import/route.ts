@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function extractTextFromDocument(document: { body?: { content?: Array<{ paragraph?: unknown; table?: unknown }> }; title?: string }): string {
+function extractTextFromDocument(document: { body?: { content?: Array<{ paragraph?: unknown; table?: unknown }> }; title?: string | null }): string {
   let content = ''
   
   if (document.body && document.body.content) {
