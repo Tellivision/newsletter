@@ -1,14 +1,14 @@
 import Link from 'next/link'
 
 interface AuthCodeErrorProps {
-  searchParams: {
+  searchParams: Promise<{
     error?: string
     description?: string
-  }
+  }>
 }
 
-export default function AuthCodeError({ searchParams }: AuthCodeErrorProps) {
-  const { error, description } = searchParams
+export default async function AuthCodeError({ searchParams }: AuthCodeErrorProps) {
+  const { error, description } = await searchParams
   
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
