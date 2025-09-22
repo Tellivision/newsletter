@@ -23,12 +23,14 @@ export async function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     /*
-     * Match all request paths except for the ones starting with:
-     * - _next (static files, image optimization, etc.)
-     * - static (static files)
-     * - favicon.ico (favicon file)
-     * - Any file with a standard web extension
+     * Match specific paths that need authentication:
+     * - Main app routes that require authentication
      */
-    '/((?!_next|static|favicon.ico|.*\\.(svg|png|jpg|jpeg|gif|webp|js|css|ico|json|woff|woff2|ttf|otf|eot)$).*)',
+    '/',
+    '/analytics/:path*',
+    '/editor/:path*',
+    '/newsletters/:path*',
+    '/subscribers/:path*',
+    '/templates/:path*',
   ],
 }
