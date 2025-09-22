@@ -20,7 +20,6 @@ export async function updateSession(request: NextRequest) {
   // For Vercel deployments, ensure we're using the correct URL
   const host = request.headers.get('host')
   const protocol = host?.includes('localhost') ? 'http' : 'https'
-  const baseUrl = `${protocol}://${host}`
 
   const supabase = createServerClient(
     supabaseUrl,
@@ -102,8 +101,8 @@ export async function updateSession(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = '/auth/signin'
     
-    // Ensure we're using the correct URL for redirects
-    const response = NextResponse.redirect(url, { request })
+    // Create redirect response
+    const response = NextResponse.redirect(url)
     
     // Copy cookies from the Supabase-managed response
     for (const cookie of supabaseResponse.cookies.getAll()) {
