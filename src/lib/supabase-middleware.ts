@@ -79,12 +79,20 @@ export async function updateSession(request: NextRequest) {
   // 1. Pass the request in it, like so: NextResponse.redirect(url, { request })
   // 2. Copy over the cookies, like so: response.cookies.setAll(supabaseResponse.cookies.getAll())
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/auth') &&
-    !request.nextUrl.pathname.startsWith('/api/auth')
-  ) {
-    // No user, potentially respond by redirecting the user to the login page
+  // Define public routes that don't require authentication
+  const publicRoutes = [
+    '/',
+    '/auth',
+    '/api/auth'
+  ]
+  
+  const isPublicRoute = publicRoutes.some(route => 
+    request.nextUrl.pathname === route || 
+    request.nextUrl.pathname.startsWith(route + '/')
+  )
+
+  if (!user && !isPublicRoute) {
+    // No user and not a public route, redirect to login page
     const url = request.nextUrl.clone()
     url.pathname = '/auth/signin'
     const response = NextResponse.redirect(url)
