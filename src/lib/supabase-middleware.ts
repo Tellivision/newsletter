@@ -11,15 +11,10 @@ export async function updateSession(request: NextRequest) {
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
   if (!supabaseUrl || !supabaseAnonKey) {
-    // During build time or if environment variables are not configured
+    // During build time, environment variables might not be available
     // Return the response without authentication checks
-    console.warn('Supabase environment variables not available, skipping auth check')
     return supabaseResponse
   }
-  
-  // For Vercel deployments, ensure we're using the correct URL
-  const host = request.headers.get('host')
-  const protocol = host?.includes('localhost') ? 'http' : 'https'
 
   const supabase = createServerClient(
     supabaseUrl,
@@ -100,10 +95,7 @@ export async function updateSession(request: NextRequest) {
     // No user and not a public route, redirect to login page
     const url = request.nextUrl.clone()
     url.pathname = '/auth/signin'
-    
-    // Create redirect response
     const response = NextResponse.redirect(url)
-    
     // Copy cookies from the Supabase-managed response
     for (const cookie of supabaseResponse.cookies.getAll()) {
       response.cookies.set(cookie)

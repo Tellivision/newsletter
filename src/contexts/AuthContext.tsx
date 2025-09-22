@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session, AuthError } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase'
+import AuthLoadingFallback from '@/components/auth-loading-fallback'
 
 interface AuthContextType {
   user: User | null
@@ -18,30 +19,44 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
+  const [mounted, setMounted] = useState(false)
 
   useEffect(() => {
-    const supabase = createClient()
+    setMounted(true)
+    
+    // Prevent hydration errors by only running auth code on the client
+    if (typeof window !== 'undefined') {
+      const supabase = createClient()
 
-    // Get initial session
-    const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
-      setSession(session)
-      setUser(session?.user ?? null)
+      // Get initial session
+      const getInitialSession = async () => {
+        try {
+          const { data: { session } } = await supabase.auth.getSession()
+          setSession(session)
+          setUser(session?.user ?? null)
+        } catch (error) {
+          console.error('Error getting initial session:', error)
+        } finally {
+          setLoading(false)
+        }
+      }
+
+      getInitialSession()
+
+      // Listen for auth changes
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          setSession(session)
+          setUser(session?.user ?? null)
+          setLoading(false)
+        }
+      )
+
+      return () => subscription.unsubscribe()
+    } else {
+      // Server-side rendering case
       setLoading(false)
     }
-
-    getInitialSession()
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session)
-        setUser(session?.user ?? null)
-        setLoading(false)
-      }
-    )
-
-    return () => subscription.unsubscribe()
   }, [])
 
   const signInWithGoogle = async () => {
@@ -86,6 +101,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     loading,
     signInWithGoogle,
     signOut
+  }
+
+  // Show loading UI during initial auth check
+  if (!mounted || loading) {
+    return <AuthLoadingFallback />
   }
 
   return (
