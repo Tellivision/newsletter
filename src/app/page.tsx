@@ -6,7 +6,7 @@ import { MainLayout } from '@/components/layout/main-layout'
 import { DashboardGrid, DashboardCard } from '@/components/layout/dashboard-grid'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { PlusCircle, Users, FileText, TrendingUp, Calendar } from 'lucide-react'
+import { PlusCircle, Users, FileText, TrendingUp, Calendar, Mail } from 'lucide-react'
 import { useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 
@@ -42,6 +42,56 @@ function OAuthCallbackHandler() {
   return null
 }
 
+// Simple landing page for unauthenticated users
+function LandingPage() {
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="container mx-auto px-4 py-16">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="mb-8">
+            <div className="flex items-center justify-center mb-6">
+              <Mail className="h-12 w-12 text-blue-600 mr-3" />
+              <h1 className="text-4xl font-bold text-gray-900">GoogLetter</h1>
+            </div>
+            <p className="text-xl text-gray-600 mb-8">
+              Create and manage professional newsletters with seamless Google integration
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 mb-12">
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <FileText className="h-8 w-8 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Rich Editor</h3>
+              <p className="text-gray-600">Create beautiful newsletters with our professional editor</p>
+            </div>
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <Users className="h-8 w-8 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Manage Subscribers</h3>
+              <p className="text-gray-600">Easily organize and manage your subscriber lists</p>
+            </div>
+            <div className="bg-white rounded-lg p-6 shadow-sm">
+              <TrendingUp className="h-8 w-8 text-blue-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold mb-2">Analytics</h3>
+              <p className="text-gray-600">Track engagement and optimize your campaigns</p>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg">
+              <Link href="/auth/signin">
+                Get Started Free
+              </Link>
+            </Button>
+            <p className="text-sm text-gray-500">
+              Sign in with Google to start creating newsletters
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function DashboardContent() {
   const { user, loading } = useAuth()
 
@@ -57,7 +107,7 @@ function DashboardContent() {
   }
 
   if (!user) {
-    return null // Middleware will redirect to sign-in
+    return <LandingPage />
   }
 
   const meta = user.user_metadata as { name?: string; full_name?: string; avatar_url?: string; picture?: string }
@@ -196,7 +246,14 @@ function DashboardContent() {
 export default function Dashboard() {
   return (
     <>
-      <Suspense fallback={null}>
+      <Suspense fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+            <p className="text-gray-600">Loading...</p>
+          </div>
+        </div>
+      }>
         <OAuthCallbackHandler />
       </Suspense>
       <DashboardContent />
