@@ -34,12 +34,12 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
       StarterKit.configure({
         bulletList: {
           HTMLAttributes: {
-            style: 'list-style-type: disc; padding-left: 20px; margin: 10px 0;',
+            class: 'list-disc list-inside space-y-1',
           },
         },
         orderedList: {
           HTMLAttributes: {
-            style: 'list-style-type: decimal; padding-left: 20px; margin: 10px 0;',
+            class: 'list-decimal list-inside space-y-1',
           },
         },
         listItem: {
@@ -52,7 +52,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
       Link.configure({
         openOnClick: false,
         HTMLAttributes: {
-          style: 'color: #2563eb; text-decoration: underline;',
+          class: 'text-blue-600 underline',
         },
       }),
       TextStyle,
@@ -60,7 +60,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
         types: ['textStyle'],
       }),
     ],
-    content,
+    content: content || '',
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML())
@@ -70,30 +70,55 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
         class: 'prose prose-sm sm:prose lg:prose-lg xl:prose-2xl mx-auto focus:outline-none min-h-[300px] p-4',
       },
     },
+    // Allow all HTML attributes to preserve template styling
+    parseOptions: {
+      preserveWhitespace: 'full',
+    },
   })
 
   // Update editor content when the content prop changes
   useEffect(() => {
-    if (editor && content && content !== editor.getHTML()) {
-      console.log('RichTextEditor: Updating content', { 
-        contentLength: content.length, 
-        contentPreview: content.substring(0, 100) + '...',
-        currentEditorContent: editor.getHTML().substring(0, 100) + '...'
+    if (editor && content !== undefined) {
+      const currentContent = editor.getHTML()
+      console.log('RichTextEditor: Content comparison', { 
+        newContentLength: content.length,
+        currentContentLength: currentContent.length,
+        newContentPreview: content.substring(0, 100) + '...',
+        currentContentPreview: currentContent.substring(0, 100) + '...',
+        areEqual: content === currentContent
       });
       
-      try {
-        // Clear the editor first, then set new content
-        editor.commands.clearContent();
-        editor.commands.setContent(content);
-        console.log('RichTextEditor: Content updated successfully');
-      } catch (error) {
-        console.error('RichTextEditor: Error setting content', error);
-        // Fallback: try to set as plain HTML
+      if (content !== currentContent) {
+        console.log('RichTextEditor: Updating editor content...');
+        
         try {
-          editor.commands.insertContent(content);
-          console.log('RichTextEditor: Content inserted as fallback');
-        } catch (fallbackError) {
-          console.error('RichTextEditor: Fallback also failed', fallbackError);
+          // Try setting content directly first
+          editor.commands.setContent(content, false);
+          console.log('RichTextEditor: Content set successfully using setContent');
+        } catch (error) {
+          console.error('RichTextEditor: Error with setContent, trying alternative', error);
+          
+          try {
+            // Alternative: Clear and insert
+            editor.commands.clearContent();
+            editor.commands.insertContent(content);
+            console.log('RichTextEditor: Content inserted successfully using insertContent');
+          } catch (fallbackError) {
+            console.error('RichTextEditor: All methods failed', fallbackError);
+            
+            // Last resort: Try to convert complex HTML to simpler format
+            try {
+              const simplifiedContent = content
+                .replace(/<div[^>]*>/g, '<p>')
+                .replace(/<\/div>/g, '</p>')
+                .replace(/style="[^"]*"/g, '');
+              
+              editor.commands.setContent(simplifiedContent);
+              console.log('RichTextEditor: Simplified content loaded');
+            } catch (lastError) {
+              console.error('RichTextEditor: Even simplified content failed', lastError);
+            }
+          }
         }
       }
     }
