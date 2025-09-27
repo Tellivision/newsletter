@@ -70,10 +70,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signInWithGoogle = async () => {
     try {
       const supabase = createClient()
+      
+      // Determine the correct redirect URL based on environment
+      const getRedirectUrl = () => {
+        if (typeof window !== 'undefined') {
+          const currentOrigin = window.location.origin
+          
+          // For Vercel deployment, always use the production URL
+          if (currentOrigin.includes('vercel.app') || currentOrigin.includes('newsletter-orcin-delta.vercel.app')) {
+            return 'https://newsletter-orcin-delta.vercel.app/auth/callback'
+          }
+          
+          // For custom domains (if you have one)
+          if (currentOrigin.includes('googleletter.com')) {
+            return `${currentOrigin}/auth/callback`
+          }
+          
+          // For local development
+          if (currentOrigin.includes('localhost') || currentOrigin.includes('127.0.0.1')) {
+            return 'http://localhost:3000/auth/callback'
+          }
+          
+          // Fallback to current origin
+          return `${currentOrigin}/auth/callback`
+        }
+        
+        // Server-side fallback
+        return 'https://newsletter-orcin-delta.vercel.app/auth/callback'
+      }
+
+      const redirectUrl = getRedirectUrl()
+      console.log('OAuth redirect URL:', redirectUrl)
+
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: redirectUrl,
           scopes: 'openid email profile https://www.googleapis.com/auth/documents https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file',
         },
       })
