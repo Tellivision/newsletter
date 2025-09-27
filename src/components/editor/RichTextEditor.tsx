@@ -93,7 +93,7 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
         
         try {
           // Try setting content directly first
-          editor.commands.setContent(content, false);
+          editor.commands.setContent(content);
           console.log('RichTextEditor: Content set successfully using setContent');
         } catch (error) {
           console.error('RichTextEditor: Error with setContent, trying alternative', error);
