@@ -75,18 +75,25 @@ export default function TemplatesPage() {
 
   const selectTemplate = async (template: Template) => {
     try {
+      console.log('Selecting template:', template.name);
+      
       // Store template data in localStorage for the editor
-      localStorage.setItem('selectedTemplate', JSON.stringify({
+      const templateData = {
         subject: template.subject,
         content: template.content,
         previewText: template.previewText
-      }))
+      };
       
-      toast.success(`Template "${template.name}" loaded successfully!`)
-      router.push('/editor')
+      localStorage.setItem('selectedTemplate', JSON.stringify(templateData));
+      console.log('Template stored in localStorage:', templateData);
+      
+      toast.success(`Template "${template.name}" loaded successfully!`);
+      
+      // Navigate to editor
+      router.push('/editor');
     } catch (error) {
-      console.error('Error using template:', error)
-      toast.error('Failed to load template')
+      console.error('Error using template:', error);
+      toast.error('Failed to load template');
     }
   }
 

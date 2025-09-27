@@ -8,7 +8,7 @@ import { TextStyle } from '@tiptap/extension-text-style'
 import { Bold, Italic, List, Link2, Type } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { useCallback } from 'react'
+import { useCallback, useEffect } from 'react'
 
 interface RichTextEditorProps {
   content: string
@@ -72,6 +72,13 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
     },
   })
 
+  // Update editor content when the content prop changes
+  useEffect(() => {
+    if (editor && content !== editor.getHTML()) {
+      editor.commands.setContent(content, false)
+    }
+  }, [content, editor])
+
   const addLink = useCallback(() => {
     if (!editor) return
 
@@ -110,7 +117,14 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
   }, [editor])
 
   if (!editor) {
-    return null
+    return (
+      <div className="border rounded-lg min-h-[300px] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto mb-2"></div>
+          <p className="text-gray-500 text-sm">Loading editor...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

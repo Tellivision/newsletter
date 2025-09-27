@@ -39,6 +39,7 @@ export default function NewsletterEditor() {
       const templateData = localStorage.getItem('selectedTemplate');
       if (templateData) {
         const template = JSON.parse(templateData);
+        console.log('Loading template from storage:', template);
         setNewsletter({
           subject: template.subject || '',
           content: template.content || '',
@@ -46,6 +47,9 @@ export default function NewsletterEditor() {
         });
         // Clear the template from storage after loading
         localStorage.removeItem('selectedTemplate');
+        console.log('Template loaded successfully into editor');
+      } else {
+        console.log('No template found in storage');
       }
     } catch (error) {
       console.error('Failed to load template:', error);
