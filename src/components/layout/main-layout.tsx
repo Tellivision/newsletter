@@ -33,8 +33,3 @@ export function MainLayout({ children, title, user }: MainLayoutProps) {
     </div>
   )
 }
-        </main>
-      </div>
-    </div>
-  )
-}
