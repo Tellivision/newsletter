@@ -74,8 +74,28 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
 
   // Update editor content when the content prop changes
   useEffect(() => {
-    if (editor && content !== editor.getHTML()) {
-      editor.commands.setContent(content)
+    if (editor && content && content !== editor.getHTML()) {
+      console.log('RichTextEditor: Updating content', { 
+        contentLength: content.length, 
+        contentPreview: content.substring(0, 100) + '...',
+        currentEditorContent: editor.getHTML().substring(0, 100) + '...'
+      });
+      
+      try {
+        // Clear the editor first, then set new content
+        editor.commands.clearContent();
+        editor.commands.setContent(content);
+        console.log('RichTextEditor: Content updated successfully');
+      } catch (error) {
+        console.error('RichTextEditor: Error setting content', error);
+        // Fallback: try to set as plain HTML
+        try {
+          editor.commands.insertContent(content);
+          console.log('RichTextEditor: Content inserted as fallback');
+        } catch (fallbackError) {
+          console.error('RichTextEditor: Fallback also failed', fallbackError);
+        }
+      }
     }
   }, [content, editor])
 
