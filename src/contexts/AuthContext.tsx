@@ -3,6 +3,7 @@
 import { createContext, useContext, useEffect, useState } from 'react'
 import { User, Session, AuthError } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase'
+import { getAuthCallbackUrl, getEnvironmentInfo } from '@/lib/env'
 import AuthLoadingFallback from '@/components/auth-loading-fallback'
 
 interface AuthContextType {
@@ -71,41 +72,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const supabase = createClient()
       
-      // Determine the correct redirect URL based on environment
-      const getRedirectUrl = () => {
-        if (typeof window !== 'undefined') {
-          const currentOrigin = window.location.origin
-          
-          // For Vercel deployment, always use the production URL
-          if (currentOrigin.includes('vercel.app') || currentOrigin.includes('newsletter-orcin-delta.vercel.app')) {
-            return 'https://newsletter-orcin-delta.vercel.app/auth/callback'
-          }
-          
-          // For custom domains (if you have one)
-          if (currentOrigin.includes('googleletter.com')) {
-            return `${currentOrigin}/auth/callback`
-          }
-          
-          // For local development
-          if (currentOrigin.includes('localhost') || currentOrigin.includes('127.0.0.1')) {
-            return 'http://localhost:3000/auth/callback'
-          }
-          
-          // Fallback to current origin
-          return `${currentOrigin}/auth/callback`
-        }
-        
-        // Server-side fallback
-        return 'https://newsletter-orcin-delta.vercel.app/auth/callback'
-      }
-
-      const redirectUrl = getRedirectUrl()
-      console.log('OAuth redirect URL:', redirectUrl)
+      // Use the robust environment detection
+      const callbackUrl = getAuthCallbackUrl()
+      const envInfo = getEnvironmentInfo()
+      
+      console.log('Environment info:', envInfo)
+      console.log('OAuth callback URL:', callbackUrl)
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: redirectUrl,
+          redirectTo: callbackUrl,
           scopes: 'openid email profile https://www.googleapis.com/auth/documents https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/drive.file',
         },
       })
