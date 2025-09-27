@@ -8,7 +8,11 @@ import { RichTextEditor } from '@/components/editor/RichTextEditor'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
 export default function DebugTemplatesPage() {
-  const [templateData, setTemplateData] = useState<any>(null)
+  const [templateData, setTemplateData] = useState<{
+    subject: string;
+    content: string;
+    previewText: string;
+  } | null>(null)
   const [testContent, setTestContent] = useState('')
   const [editorContent, setEditorContent] = useState('')
   const [logs, setLogs] = useState<string[]>([])

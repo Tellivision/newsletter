@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,13 +28,7 @@ export default function NewsletterEditor() {
   const [subscribers, setSubscribers] = useState<string[]>([]);
   const [subscriberStats, setSubscriberStats] = useState({ total: 0, active: 0 });
 
-  // Fetch subscribers and load template on component mount
-  useEffect(() => {
-    fetchSubscribers();
-    loadTemplateFromStorage();
-  }, []);
-
-  const loadTemplateFromStorage = () => {
+  const loadTemplateFromStorage = useCallback(() => {
     try {
       const templateData = localStorage.getItem('selectedTemplate');
       console.log('Raw template data from localStorage:', templateData);
@@ -45,7 +39,7 @@ export default function NewsletterEditor() {
         console.log('Template content length:', template.content?.length);
         console.log('Template content preview:', template.content?.substring(0, 200) + '...');
         
-        setNewsletter(prev => {
+        setNewsletter(() => {
           const newState = {
             subject: template.subject || '',
             content: template.content || '',
@@ -61,11 +55,7 @@ export default function NewsletterEditor() {
         
         // Add a small delay to ensure state is updated
         setTimeout(() => {
-          console.log('Current newsletter state after delay:', {
-            subject: newsletter.subject,
-            contentLength: newsletter.content.length,
-            previewText: newsletter.previewText
-          });
+          console.log('Template state updated successfully');
         }, 100);
       } else {
         console.log('No template found in storage');
@@ -73,7 +63,13 @@ export default function NewsletterEditor() {
     } catch (error) {
       console.error('Failed to load template:', error);
     }
-  };
+  }, []);
+
+  // Fetch subscribers and load template on component mount
+  useEffect(() => {
+    fetchSubscribers();
+    loadTemplateFromStorage();
+  }, [loadTemplateFromStorage]);
 
   const fetchSubscribers = async () => {
     try {

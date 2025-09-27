@@ -7,11 +7,39 @@ import { Copy, ExternalLink, CheckCircle, XCircle } from 'lucide-react'
 
 interface DebugInfo {
   success: boolean
-  environment: any
-  environmentVariables: any
-  oauthConfiguration: any
-  troubleshooting: any
-  currentRequest: any
+  environment: {
+    baseUrl: string;
+    callbackUrl: string;
+    isVercel: boolean;
+    isLocal: boolean;
+  }
+  environmentVariables: Record<string, string>
+  oauthConfiguration: {
+    googleOAuthSetup: {
+      authorizedJavaScriptOrigins: string[];
+      authorizedRedirectUris: string[];
+    };
+    supabaseAuthSetup: {
+      siteUrl: string;
+      redirectUrls: string[];
+    };
+  }
+  troubleshooting: {
+    redirectUriMismatchError: {
+      issue: string;
+      solution: string;
+      currentCallbackBeingSent: string;
+    };
+    n8nZuluError: {
+      issue: string;
+      solution: string;
+    };
+  }
+  currentRequest: {
+    domain: string;
+    userAgent: string | null;
+    timestamp: string;
+  }
 }
 
 export default function OAuthDebugPage() {

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getAuthCallbackUrl, getEnvironmentInfo, getBaseUrl } from '@/lib/env'
+import { getAuthCallbackUrl, getEnvironmentInfo } from '@/lib/env'
 
 export async function GET(request: Request) {
   try {
