@@ -16,7 +16,7 @@ interface MainLayoutProps {
 
 export function MainLayout({ children, title, user }: MainLayoutProps) {
   return (
-    <div className="flex h-screen bg-brand-gray">
+    <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
       <Sidebar />
       
@@ -26,8 +26,13 @@ export function MainLayout({ children, title, user }: MainLayoutProps) {
         <Header title={title} user={user} />
         
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto p-6 bg-brand-gray">
+        <main className="flex-1 overflow-y-auto p-6 bg-gray-50">
           {children}
+        </main>
+      </div>
+    </div>
+  )
+}
         </main>
       </div>
     </div>

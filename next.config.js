@@ -14,6 +14,8 @@ const nextConfig = {
       },
     ],
   },
+  // Fix workspace root detection warning
+  outputFileTracingRoot: __dirname,
   turbopack: {
     rules: {
       '*.svg': {
@@ -21,6 +23,10 @@ const nextConfig = {
         as: '*.js',
       },
     },
+  },
+  experimental: {
+    // Optimize build performance
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
 }
 

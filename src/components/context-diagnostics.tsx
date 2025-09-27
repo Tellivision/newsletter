@@ -65,7 +65,8 @@ export default function ContextDiagnostics() {
         localStorage.setItem('test', 'test')
         localStorage.removeItem('test')
       }
-    } catch (e) {
+    } catch {
+      // If any error occurs, localStorage is not available
       localStorageAvailable = false
     }
 

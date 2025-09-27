@@ -3,7 +3,7 @@
 import React, { Component, ErrorInfo, ReactNode, Suspense } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { AlertCircle, RefreshCw, Info, ExternalLink } from 'lucide-react'
+import { AlertCircle, RefreshCw, Info } from 'lucide-react'
 import dynamic from 'next/dynamic'
 
 // Dynamically import the diagnostics component to avoid SSR issues
@@ -39,7 +39,13 @@ class ErrorBoundary extends Component<Props, State> {
   }
 
   public static getDerivedStateFromError(error: Error): State {
-    return { hasError: true, error, errorInfo: null }
+    return { 
+      hasError: true, 
+      error, 
+      errorInfo: null,
+      showDiagnostics: false,
+      errorContext: null
+    }
   }
 
   public componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
