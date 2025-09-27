@@ -161,24 +161,46 @@ export default function NewsletterEditor() {
             <p className="text-brand-primary mt-1">Create and customize your newsletter content</p>
           </div>
           <div className="flex gap-3">
-            {/* Debug button - remove in production */}
-            {process.env.NODE_ENV === 'development' && (
-              <Button
-                variant="outline"
-                onClick={() => {
-                  const testContent = `<h2>Test Template</h2><p>This is a test template to verify the editor is working.</p><ul><li>Item 1</li><li>Item 2</li></ul>`;
-                  console.log('Loading test template:', testContent);
-                  setNewsletter(prev => ({ 
-                    ...prev, 
-                    content: testContent,
-                    subject: 'Test Template Subject'
-                  }));
-                }}
-                className="flex items-center gap-2"
-              >
-                Load Test Template
-              </Button>
-            )}
+            {/* Always show debug button */}
+            <Button
+              variant="outline"
+              onClick={() => {
+                const testContent = `<h2>Test Template</h2><p>This is a test template to verify the editor is working.</p><ul><li>Item 1</li><li>Item 2</li></ul>`;
+                console.log('Loading test template:', testContent);
+                setNewsletter(prev => ({ 
+                  ...prev, 
+                  content: testContent,
+                  subject: 'Test Template Subject'
+                }));
+              }}
+              className="flex items-center gap-2"
+            >
+              🧪 Test Editor
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                // Fetch and load a real template
+                fetch('/api/templates')
+                  .then(res => res.json())
+                  .then(data => {
+                    if (data.templates && data.templates.length > 0) {
+                      const template = data.templates[0];
+                      console.log('Loading real template:', template.name, template.content.length);
+                      setNewsletter(prev => ({
+                        ...prev,
+                        subject: template.subject,
+                        content: template.content,
+                        previewText: template.previewText
+                      }));
+                    }
+                  })
+                  .catch(err => console.error('Template fetch error:', err));
+              }}
+              className="flex items-center gap-2"
+            >
+              📋 Load Template
+            </Button>
             <Button
               variant="outline"
               onClick={togglePreview}
@@ -253,20 +275,32 @@ export default function NewsletterEditor() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Newsletter Content</CardTitle>
-                    {/* Debug info - remove in production */}
-                    {process.env.NODE_ENV === 'development' && (
-                      <div className="text-xs text-gray-500 mt-2">
-                        Content length: {newsletter.content.length} characters
-                        {newsletter.content && (
-                          <details className="mt-1">
-                            <summary className="cursor-pointer">Show content preview</summary>
-                            <pre className="mt-1 p-2 bg-gray-100 rounded text-xs max-h-20 overflow-y-auto">
-                              {newsletter.content.substring(0, 500)}...
+                    {/* Always show debug info */}
+                    <div className="text-xs text-gray-500 mt-2">
+                      Content length: {newsletter.content.length} characters
+                      {newsletter.content && (
+                        <details className="mt-1">
+                          <summary className="cursor-pointer text-blue-600">📊 Show debug info</summary>
+                          <div className="mt-2 p-2 bg-gray-100 rounded text-xs">
+                            <div><strong>Subject:</strong> {newsletter.subject}</div>
+                            <div><strong>Preview:</strong> {newsletter.previewText}</div>
+                            <div><strong>Content preview:</strong></div>
+                            <pre className="mt-1 p-2 bg-gray-200 rounded text-xs max-h-20 overflow-y-auto">
+                              {newsletter.content.substring(0, 300)}...
                             </pre>
-                          </details>
-                        )}
-                      </div>
-                    )}
+                            <button 
+                              onClick={() => {
+                                console.log('Full newsletter state:', newsletter);
+                                console.log('Content:', newsletter.content);
+                              }}
+                              className="mt-2 px-2 py-1 bg-blue-500 text-white rounded text-xs"
+                            >
+                              Log to Console
+                            </button>
+                          </div>
+                        </details>
+                      )}
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <RichTextEditor
