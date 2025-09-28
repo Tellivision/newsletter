@@ -29,6 +29,11 @@ export function GoogleDocsImporter({ onImport }: GoogleDocsImporterProps) {
   const [manualContent, setManualContent] = useState('')
 
   const extractDocId = (url: string): string | null => {
+    // Check if it's a Google Sheets URL
+    if (url.includes('spreadsheets') || url.includes('/spreadsheets/')) {
+      return null // Return null to trigger specific error message
+    }
+    
     // Extract document ID from various Google Docs URL formats
     const patterns = [
       /\/document\/d\/([a-zA-Z0-9-_]+)/,
@@ -58,7 +63,11 @@ export function GoogleDocsImporter({ onImport }: GoogleDocsImporterProps) {
 
     const docId = extractDocId(docUrl)
     if (!docId) {
-      setError('Invalid Google Docs URL. Please check the URL and try again.')
+      if (docUrl.includes('spreadsheets')) {
+        setError('This is a Google Sheets link. This feature is for Google Docs (documents) only. For spreadsheet data, please copy and paste the content into the Manual Import tab.')
+      } else {
+        setError('Invalid Google Docs URL. Please make sure you\'re using a valid Google Docs document link (not Sheets, Slides, or other Google services).')
+      }
       return
     }
 

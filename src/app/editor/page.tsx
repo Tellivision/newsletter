@@ -8,6 +8,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Save, Send, Eye, FileText, Users, Calendar } from 'lucide-react';
 import { GoogleDocsImporter } from '@/components/google-docs/GoogleDocsImporter';
+import { CSVImporter } from '@/components/subscribers/CSVImporter';
+import { SheetsImporter } from '@/components/subscribers/SheetsImporter';
 import SendNewsletterModal from '@/components/newsletters/SendNewsletterModal';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
 
@@ -136,6 +138,38 @@ export default function NewsletterEditor() {
     }));
   };
 
+  const handleCSVImport = async (emails: string[]) => {
+    try {
+      // Save subscribers to database
+      const response = await fetch('/api/subscribers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ emails, action: 'bulk_add' }),
+      });
+
+      if (response.ok) {
+        // Update local subscriber list
+        setSubscribers(prev => {
+          const combined = [...prev, ...emails];
+          return [...new Set(combined)]; // Remove duplicates
+        });
+        
+        // Update stats
+        setSubscriberStats(prev => ({
+          ...prev,
+          total: prev.total + emails.length,
+          active: prev.active + emails.length
+        }));
+      } else {
+        console.error('Failed to save subscribers');
+      }
+    } catch (error) {
+      console.error('Error importing subscribers:', error);
+    }
+  };
+
   if (loading) {
     return (
       <MainLayout title="Newsletter Editor">
@@ -196,8 +230,27 @@ export default function NewsletterEditor() {
           <div className="lg:col-span-3">
             {!showPreview ? (
               <div className="space-y-6">
-                {/* Google Docs Import */}
-                <GoogleDocsImporter onImport={handleGoogleDocsImport} />
+                {/* Import Section */}
+                <div className="grid grid-cols-1 gap-6">
+                  {/* Newsletter Content Import */}
+                  <div>
+                    <GoogleDocsImporter onImport={handleGoogleDocsImport} />
+                  </div>
+                  
+                  {/* Subscriber Management - Side by Side */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div>
+                      <CSVImporter 
+                        onImport={handleCSVImport}
+                        title="CSV Email Import"
+                        description="Upload CSV files with email addresses for your subscriber list"
+                      />
+                    </div>
+                    <div>
+                      <SheetsImporter onImport={handleCSVImport} />
+                    </div>
+                  </div>
+                </div>
 
                 {/* Newsletter Details */}
                 <Card>

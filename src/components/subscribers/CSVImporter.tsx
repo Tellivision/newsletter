@@ -8,9 +8,11 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 
 interface CSVImporterProps {
   onImport: (emails: string[]) => void
+  title?: string
+  description?: string
 }
 
-export function CSVImporter({ onImport }: CSVImporterProps) {
+export function CSVImporter({ onImport, title, description }: CSVImporterProps) {
   const [isImporting, setIsImporting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -102,11 +104,18 @@ export function CSVImporter({ onImport }: CSVImporterProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Users className="h-5 w-5" />
-          Import Subscribers from CSV
+          {title || 'Import Subscribers from CSV'}
         </CardTitle>
-        <p className="text-sm text-gray-600">
-          Upload a CSV file containing email addresses to add subscribers to your newsletter
-        </p>
+        {description && (
+          <p className="text-sm text-gray-600">
+            {description}
+          </p>
+        )}
+        {!description && (
+          <p className="text-sm text-gray-600">
+            Upload a CSV file containing email addresses to add subscribers to your newsletter
+          </p>
+        )}
       </CardHeader>
       <CardContent className="space-y-4">
         <Alert>

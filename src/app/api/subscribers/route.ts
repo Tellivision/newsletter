@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Add new subscriber
+// POST - Add new subscriber or bulk import
 export async function POST(request: NextRequest) {
   try {
     const { session, error } = await getSupabaseSession()
@@ -102,7 +102,38 @@ export async function POST(request: NextRequest) {
       return createUnauthorizedResponse()
     }
 
-    const { email, name, tags } = await request.json()
+    const body = await request.json()
+    
+    // Handle bulk email import
+    if (body.action === 'bulk_add' && body.emails) {
+      const emails = body.emails as string[]
+      
+      // For now, add to mock data (in real app, this would go to Supabase)
+      const newSubscribers = emails.map((email, index) => ({
+        id: `bulk_${Date.now()}_${index}`,
+        email: email.toLowerCase().trim(),
+        name: email.split('@')[0], // Use email prefix as default name
+        status: 'active' as const,
+        subscribedAt: new Date().toISOString(),
+        tags: ['imported']
+      }))
+      
+      // Add to mock database (avoiding duplicates)
+      const existingEmails = new Set(mockSubscribers.map(s => s.email))
+      const uniqueSubscribers = newSubscribers.filter(s => !existingEmails.has(s.email))
+      
+      mockSubscribers.push(...uniqueSubscribers)
+      
+      return NextResponse.json({ 
+        message: `Successfully added ${uniqueSubscribers.length} new subscribers (${emails.length - uniqueSubscribers.length} duplicates skipped)`,
+        added_count: uniqueSubscribers.length,
+        total_count: emails.length,
+        subscribers: uniqueSubscribers 
+      })
+    }
+
+    // Handle single subscriber (existing logic)
+    const { email, name, tags } = body
     
     if (!email) {
       return NextResponse.json(
