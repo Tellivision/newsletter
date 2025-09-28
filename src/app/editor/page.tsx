@@ -12,6 +12,7 @@ import { CSVImporter } from '@/components/subscribers/CSVImporter';
 import { SheetsImporter } from '@/components/subscribers/SheetsImporter';
 import SendNewsletterModal from '@/components/newsletters/SendNewsletterModal';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
+import Link from 'next/link';
 
 interface NewsletterData {
   subject: string;
@@ -250,6 +251,27 @@ export default function NewsletterEditor() {
                       <SheetsImporter onImport={handleCSVImport} />
                     </div>
                   </div>
+                  
+                  {/* Subscriber Management Link */}
+                  <Card className="border-blue-200 bg-blue-50">
+                    <CardContent className="p-6">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Users className="h-8 w-8 text-blue-600" />
+                          <div>
+                            <h3 className="font-semibold text-blue-900">Manage Your Email List</h3>
+                            <p className="text-blue-700 text-sm">View, search, and manage all your imported subscribers</p>
+                          </div>
+                        </div>
+                        <Link href="/subscribers">
+                          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                            <Users className="h-4 w-4 mr-2" />
+                            View Subscribers
+                          </Button>
+                        </Link>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
 
                 {/* Newsletter Details */}

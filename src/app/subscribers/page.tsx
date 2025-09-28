@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -73,7 +73,8 @@ const mockSubscribers: Subscriber[] = [
 ];
 
 export default function SubscribersPage() {
-  const [subscribers, setSubscribers] = useState<Subscriber[]>(mockSubscribers);
+  const [subscribers, setSubscribers] = useState<Subscriber[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -82,6 +83,38 @@ export default function SubscribersPage() {
     firstName: '',
     lastName: ''
   });
+
+  // Load subscribers from database
+  useEffect(() => {
+    loadSubscribers();
+  }, []);
+
+  const loadSubscribers = async () => {
+    try {
+      const response = await fetch('/api/subscribers');
+      if (response.ok) {
+        const data = await response.json();
+        // Transform database format to component format
+        const transformedSubscribers = data.map((sub: { id: string; email: string; first_name?: string; last_name?: string; status?: string; created_at?: string; updated_at?: string; tags?: string[] }) => ({
+          id: sub.id,
+          email: sub.email,
+          firstName: sub.first_name || '',
+          lastName: sub.last_name || '',
+          status: sub.status || 'active',
+          subscribedAt: sub.created_at ? new Date(sub.created_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          lastEngagement: sub.updated_at ? new Date(sub.updated_at).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+          tags: sub.tags || ['newsletter']
+        }));
+        setSubscribers(transformedSubscribers);
+      }
+    } catch (error) {
+      console.error('Failed to load subscribers:', error);
+      // Fallback to mock data if API fails
+      setSubscribers(mockSubscribers);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredSubscribers = subscribers.filter(subscriber => {
     const matchesSearch = 
@@ -103,23 +136,36 @@ export default function SubscribersPage() {
     }
   };
 
-  const handleAddSubscriber = () => {
+  const handleAddSubscriber = async () => {
     if (!newSubscriber.email) return;
     
-    const subscriber: Subscriber = {
-      id: Date.now().toString(),
-      email: newSubscriber.email,
-      firstName: newSubscriber.firstName,
-      lastName: newSubscriber.lastName,
-      status: 'active',
-      subscribedAt: new Date().toISOString().split('T')[0],
-      lastEngagement: new Date().toISOString().split('T')[0],
-      tags: ['newsletter']
-    };
-    
-    setSubscribers([...subscribers, subscriber]);
-    setNewSubscriber({ email: '', firstName: '', lastName: '' });
-    setShowAddModal(false);
+    try {
+      const response = await fetch('/api/subscribers', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          emails: [{
+            email: newSubscriber.email,
+            first_name: newSubscriber.firstName,
+            last_name: newSubscriber.lastName
+          }]
+        }),
+      });
+
+      if (response.ok) {
+        // Reload subscribers to show the new addition
+        await loadSubscribers();
+        setNewSubscriber({ email: '', firstName: '', lastName: '' });
+        setShowAddModal(false);
+      } else {
+        alert('Failed to add subscriber. Please try again.');
+      }
+    } catch (error) {
+      console.error('Failed to add subscriber:', error);
+      alert('Failed to add subscriber. Please try again.');
+    }
   };
 
   const handleImportCSV = () => {
@@ -261,64 +307,94 @@ export default function SubscribersPage() {
             <CardTitle>Subscriber List ({filteredSubscribers.length})</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b">
-                    <th className="text-left py-3 px-4 font-medium text-gray-600">Subscriber</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-600">Subscribed</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-600">Last Engagement</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-600">Tags</th>
-                    <th className="text-left py-3 px-4 font-medium text-gray-600">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredSubscribers.map((subscriber) => (
-                    <tr key={subscriber.id} className="border-b hover:bg-gray-50">
-                      <td className="py-3 px-4">
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {subscriber.firstName} {subscriber.lastName}
+            {loading ? (
+              <div className="flex justify-center py-8">
+                <div className="text-gray-500">Loading subscribers...</div>
+              </div>
+            ) : filteredSubscribers.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-gray-500">
+                <Users className="h-12 w-12 mb-4 text-gray-300" />
+                <h3 className="text-lg font-medium mb-2">No subscribers found</h3>
+                <p className="text-sm text-center mb-4">
+                  {searchTerm || statusFilter !== 'all' 
+                    ? 'Try adjusting your search or filters'
+                    : 'Start building your subscriber list by importing emails or adding subscribers manually'
+                  }
+                </p>
+                {!searchTerm && statusFilter === 'all' && (
+                  <Button onClick={() => setShowAddModal(true)} className="flex items-center gap-2">
+                    <UserPlus className="h-4 w-4" />
+                    Add First Subscriber
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">Subscriber</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">Status</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">Subscribed</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">Last Engagement</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">Tags</th>
+                      <th className="text-left py-3 px-4 font-medium text-gray-600">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredSubscribers.map((subscriber) => (
+                      <tr key={subscriber.id} className="border-b hover:bg-gray-50">
+                        <td className="py-3 px-4">
+                          <div>
+                            <div className="font-medium text-gray-900">
+                              {subscriber.firstName || subscriber.lastName 
+                                ? `${subscriber.firstName} ${subscriber.lastName}`.trim()
+                                : 'No Name'
+                              }
+                            </div>
+                            <div className="text-sm text-gray-600">{subscriber.email}</div>
                           </div>
-                          <div className="text-sm text-gray-600">{subscriber.email}</div>
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(subscriber.status)}`}>
-                          {subscriber.status}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-sm text-gray-600">
-                          {new Date(subscriber.subscribedAt).toISOString().split('T')[0]}
+                        </td>
+                        <td className="py-3 px-4">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getStatusColor(subscriber.status)}`}>
+                            {subscriber.status}
+                          </span>
                         </td>
                         <td className="py-3 px-4 text-sm text-gray-600">
-                          {new Date(subscriber.lastEngagement).toISOString().split('T')[0]}
+                          {subscriber.subscribedAt}
                         </td>
-                      <td className="py-3 px-4">
-                        <div className="flex flex-wrap gap-1">
-                          {subscriber.tags.map((tag, index) => (
-                            <span key={index} className="inline-flex px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center gap-2">
-                          <Button variant="outline" size="sm">
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <MoreHorizontal className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                        <td className="py-3 px-4 text-sm text-gray-600">
+                          {subscriber.lastEngagement}
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex flex-wrap gap-1">
+                            {Array.isArray(subscriber.tags) ? subscriber.tags.map((tag, index) => (
+                              <span key={index} className="inline-flex px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                                {tag}
+                              </span>
+                            )) : (
+                              <span className="inline-flex px-2 py-1 text-xs bg-blue-100 text-blue-800 rounded">
+                                newsletter
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3 px-4">
+                          <div className="flex items-center gap-2">
+                            <Button variant="outline" size="sm">
+                              <Edit className="h-3 w-3" />
+                            </Button>
+                            <Button variant="outline" size="sm">
+                              <MoreHorizontal className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </CardContent>
         </Card>
 

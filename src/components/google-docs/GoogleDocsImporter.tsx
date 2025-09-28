@@ -105,7 +105,14 @@ export function GoogleDocsImporter({ onImport }: GoogleDocsImporterProps) {
       setSuccess(`Successfully imported "${data.title}" from Google Docs!`)
       setDocUrl('')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to import document')
+      let errorMessage = err instanceof Error ? err.message : 'Failed to import document'
+      
+      // Check if this might be a Google Sheets URL instead of Docs
+      if (docUrl.includes('spreadsheets')) {
+        errorMessage = 'This appears to be a Google Sheets URL. For importing email subscribers from spreadsheets, please use the "Import from Google Sheets" option in the email management section below. Google Docs import is only for newsletter content (text documents).'
+      }
+      
+      setError(errorMessage)
     } finally {
       setIsImporting(false)
     }
