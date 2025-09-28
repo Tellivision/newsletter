@@ -1,7 +1,13 @@
 <svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
   <rect width="300" height="200" fill="#f8f9fa"/>
   <rect width="300" height="45" fill="#1f2937"/>
-  <text x="150" y="25" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">📰 Weekly Digest</text>
+  
+  <!-- Newspaper icon -->
+  <rect x="135" y="15" width="12" height="8" fill="white" rx="1"/>
+  <line x1="137" y1="18" x2="145" y2="18" stroke="#1f2937" stroke-width="0.5"/>
+  <line x1="137" y1="20" x2="143" y2="20" stroke="#1f2937" stroke-width="0.5"/>
+  
+  <text x="155" y="25" fill="white" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Weekly Digest</text>
   <text x="150" y="40" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="9" opacity="0.8">Curated content</text>
   
   <!-- Article 1 -->
@@ -25,8 +31,10 @@
   <text x="75" y="143" fill="#1f2937" font-family="Arial, sans-serif" font-size="8" font-weight="bold">How-to Guide</text>
   <text x="25" y="153" fill="#6b7280" font-family="Arial, sans-serif" font-size="6">Step-by-step tutorial...</text>
   
-  <!-- Tip section -->
+  <!-- Tip section with lightbulb icon -->
   <rect x="20" y="170" width="260" height="20" fill="#f3f4f6" rx="4"/>
-  <text x="150" y="180" text-anchor="middle" fill="#1f2937" font-family="Arial, sans-serif" font-size="7" font-weight="bold">💡 Quick Tip</text>
+  <circle cx="140" cy="180" r="4" fill="#f59e0b"/>
+  <rect x="138" y="178" width="4" height="2" fill="white" rx="0.5"/>
+  <text x="155" y="180" fill="#1f2937" font-family="Arial, sans-serif" font-size="7" font-weight="bold">Quick Tip</text>
   <text x="150" y="188" text-anchor="middle" fill="#4b5563" font-family="Arial, sans-serif" font-size="6">Weekly productivity tip</text>
 </svg>
