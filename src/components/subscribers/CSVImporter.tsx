@@ -7,7 +7,7 @@ import { Upload, Users, AlertCircle, CheckCircle, FileText } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 interface CSVImporterProps {
-  onImport: (emails: string[]) => void
+  onImport: (emails: string[], listName?: string) => void
   title?: string
   description?: string
 }
@@ -17,6 +17,7 @@ export function CSVImporter({ onImport, title, description }: CSVImporterProps) 
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [dragActive, setDragActive] = useState(false)
+  const [listName, setListName] = useState('')
 
   const parseCSV = (csvText: string): string[] => {
     const lines = csvText.split('\n').map(line => line.trim()).filter(line => line)
@@ -63,8 +64,9 @@ export function CSVImporter({ onImport, title, description }: CSVImporterProps) 
         return
       }
 
-      onImport(emails)
-      setSuccess(`Successfully imported ${emails.length} email addresses`)
+      onImport(emails, listName || file.name.replace('.csv', ''))
+      setSuccess(`Successfully imported ${emails.length} email addresses to list "${listName || file.name.replace('.csv', '')}"`)
+      setListName('')
     } catch (error) {
       console.error('CSV parsing error:', error)
       setError('Failed to read CSV file. Please make sure it\'s a valid CSV format.')
@@ -127,6 +129,22 @@ export function CSVImporter({ onImport, title, description }: CSVImporterProps) 
             <strong>Examples:</strong> name,email,status OR just a list of emails
           </AlertDescription>
         </Alert>
+
+        {/* List Name Input */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700">
+            List Name (optional)
+          </label>
+          <Input
+            value={listName}
+            onChange={(e) => setListName(e.target.value)}
+            placeholder="e.g., Newsletter Subscribers, Marketing Campaign"
+            className="w-full"
+          />
+          <p className="text-xs text-gray-500">
+            Give your subscriber list a name to organize and manage different groups
+          </p>
+        </div>
 
         {/* Drag and Drop Area */}
         <div

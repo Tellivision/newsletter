@@ -8,7 +8,7 @@ import { Table, AlertCircle, CheckCircle, ExternalLink } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 
 interface SheetsImporterProps {
-  onImport: (emails: string[]) => void
+  onImport: (emails: string[], listName?: string) => void
 }
 
 export function SheetsImporter({ onImport }: SheetsImporterProps) {
@@ -16,6 +16,7 @@ export function SheetsImporter({ onImport }: SheetsImporterProps) {
   const [isImporting, setIsImporting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [listName, setListName] = useState('')
 
   const extractSheetsId = (url: string): string | null => {
     const patterns = [
@@ -67,9 +68,11 @@ export function SheetsImporter({ onImport }: SheetsImporterProps) {
       }
 
       if (data.emails && data.emails.length > 0) {
-        onImport(data.emails)
-        setSuccess(`Successfully imported ${data.emails.length} email addresses from Google Sheets`)
+        const finalListName = listName || `Google Sheets Import ${new Date().toLocaleDateString()}`
+        onImport(data.emails, finalListName)
+        setSuccess(`Successfully imported ${data.emails.length} email addresses to list "${finalListName}"`)
         setSheetsUrl('')
+        setListName('')
       } else {
         setError('No email addresses found in the Google Sheets. Make sure your spreadsheet contains email addresses.')
       }
@@ -104,6 +107,21 @@ export function SheetsImporter({ onImport }: SheetsImporterProps) {
         </Alert>
 
         <div className="space-y-2">
+          <label className="text-sm font-medium text-gray-700">
+            List Name (optional)
+          </label>
+          <Input
+            value={listName}
+            onChange={(e) => setListName(e.target.value)}
+            placeholder="e.g., Newsletter Subscribers, Event Attendees"
+            className="w-full"
+          />
+          <p className="text-xs text-gray-500">
+            Give your subscriber list a name to organize different groups
+          </p>
+        </div>
+
+        <div className="space-y-2")>
           <label className="text-sm font-medium text-gray-700">
             Google Sheets URL
           </label>

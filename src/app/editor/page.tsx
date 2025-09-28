@@ -40,14 +40,12 @@ export default function NewsletterEditor() {
       if (templateData) {
         const template = JSON.parse(templateData);
         
-        setNewsletter(() => {
-          const newState = {
-            subject: template.subject || '',
-            content: template.content || '',
-            previewText: template.previewText || ''
-          };
-          return newState;
-        });
+    setNewsletter(prev => ({
+      ...prev,
+      subject: template.subject || '',
+      content: template.content || '',
+      previewText: template.previewText || ''
+    }));
         
         // Clear the template from storage after loading
         localStorage.removeItem('selectedTemplate');
@@ -139,7 +137,7 @@ export default function NewsletterEditor() {
     }));
   };
 
-  const handleCSVImport = async (emails: string[]) => {
+  const handleCSVImport = async (emails: string[], listName?: string) => {
     try {
       // Save subscribers to database
       const response = await fetch('/api/subscribers', {
@@ -147,10 +145,15 @@ export default function NewsletterEditor() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ emails, action: 'bulk_add' }),
+        body: JSON.stringify({ 
+          action: 'bulk_add', 
+          emails, 
+          listName: listName || `Imported List ${new Date().toLocaleDateString()}`
+        }),
       });
 
       if (response.ok) {
+        const result = await response.json();
         // Update local subscriber list
         setSubscribers(prev => {
           const combined = [...prev, ...emails];
@@ -160,14 +163,18 @@ export default function NewsletterEditor() {
         // Update stats
         setSubscriberStats(prev => ({
           ...prev,
-          total: prev.total + emails.length,
-          active: prev.active + emails.length
+          total: prev.total + result.added_count,
+          active: prev.active + result.added_count
         }));
+
+        alert(`${result.message}`);
       } else {
         console.error('Failed to save subscribers');
+        alert('Failed to save subscribers to the database');
       }
     } catch (error) {
       console.error('Error importing subscribers:', error);
+      alert('Error importing subscribers');
     }
   };
 
