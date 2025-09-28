@@ -31,13 +31,9 @@ export default function NewsletterEditor() {
   const loadTemplateFromStorage = useCallback(() => {
     try {
       const templateData = localStorage.getItem('selectedTemplate');
-      console.log('Raw template data from localStorage:', templateData);
       
       if (templateData) {
         const template = JSON.parse(templateData);
-        console.log('Parsed template:', template);
-        console.log('Template content length:', template.content?.length);
-        console.log('Template content preview:', template.content?.substring(0, 200) + '...');
         
         setNewsletter(() => {
           const newState = {
@@ -45,20 +41,11 @@ export default function NewsletterEditor() {
             content: template.content || '',
             previewText: template.previewText || ''
           };
-          console.log('Setting newsletter state:', newState);
           return newState;
         });
         
         // Clear the template from storage after loading
         localStorage.removeItem('selectedTemplate');
-        console.log('Template loaded successfully into editor');
-        
-        // Add a small delay to ensure state is updated
-        setTimeout(() => {
-          console.log('Template state updated successfully');
-        }, 100);
-      } else {
-        console.log('No template found in storage');
       }
     } catch (error) {
       console.error('Failed to load template:', error);
@@ -157,46 +144,6 @@ export default function NewsletterEditor() {
             <p className="text-brand-primary mt-1">Create and customize your newsletter content</p>
           </div>
           <div className="flex gap-3">
-            {/* Always show debug button */}
-            <Button
-              variant="outline"
-              onClick={() => {
-                const testContent = `<h2>Test Template</h2><p>This is a test template to verify the editor is working.</p><ul><li>Item 1</li><li>Item 2</li></ul>`;
-                console.log('Loading test template:', testContent);
-                setNewsletter(prev => ({ 
-                  ...prev, 
-                  content: testContent,
-                  subject: 'Test Template Subject'
-                }));
-              }}
-              className="flex items-center gap-2"
-            >
-              🧪 Test Editor
-            </Button>
-            <Button
-              variant="outline"
-              onClick={() => {
-                // Fetch and load a real template
-                fetch('/api/templates')
-                  .then(res => res.json())
-                  .then(data => {
-                    if (data.templates && data.templates.length > 0) {
-                      const template = data.templates[0];
-                      console.log('Loading real template:', template.name, template.content.length);
-                      setNewsletter(prev => ({
-                        ...prev,
-                        subject: template.subject,
-                        content: template.content,
-                        previewText: template.previewText
-                      }));
-                    }
-                  })
-                  .catch(err => console.error('Template fetch error:', err));
-              }}
-              className="flex items-center gap-2"
-            >
-              📋 Load Template
-            </Button>
             <Button
               variant="outline"
               onClick={togglePreview}
@@ -271,43 +218,11 @@ export default function NewsletterEditor() {
                 <Card>
                   <CardHeader>
                     <CardTitle>Newsletter Content</CardTitle>
-                    {/* Always show debug info */}
-                    <div className="text-xs text-gray-500 mt-2">
-                      Content length: {newsletter.content.length} characters
-                      {newsletter.content && (
-                        <details className="mt-1">
-                          <summary className="cursor-pointer text-blue-600">📊 Show debug info</summary>
-                          <div className="mt-2 p-2 bg-gray-100 rounded text-xs">
-                            <div><strong>Subject:</strong> {newsletter.subject}</div>
-                            <div><strong>Preview:</strong> {newsletter.previewText}</div>
-                            <div><strong>Content preview:</strong></div>
-                            <pre className="mt-1 p-2 bg-gray-200 rounded text-xs max-h-20 overflow-y-auto">
-                              {newsletter.content.substring(0, 300)}...
-                            </pre>
-                            <button 
-                              onClick={() => {
-                                console.log('Full newsletter state:', newsletter);
-                                console.log('Content:', newsletter.content);
-                              }}
-                              className="mt-2 px-2 py-1 bg-blue-500 text-white rounded text-xs"
-                            >
-                              Log to Console
-                            </button>
-                          </div>
-                        </details>
-                      )}
-                    </div>
                   </CardHeader>
                   <CardContent>
                     <RichTextEditor
                       content={newsletter.content}
-                      onChange={(content) => {
-                        console.log('RichTextEditor onChange called with:', { 
-                          contentLength: content.length,
-                          contentPreview: content.substring(0, 100) + '...'
-                        });
-                        setNewsletter(prev => ({ ...prev, content }));
-                      }}
+                      onChange={(content) => setNewsletter(prev => ({ ...prev, content }))}
                       placeholder="Start writing your newsletter content..."
                     />
                   </CardContent>

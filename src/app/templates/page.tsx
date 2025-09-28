@@ -75,8 +75,6 @@ export default function TemplatesPage() {
 
   const selectTemplate = async (template: Template) => {
     try {
-      console.log('Selecting template:', template.name);
-      
       // Store template data in localStorage for the editor
       const templateData = {
         subject: template.subject,
@@ -85,7 +83,6 @@ export default function TemplatesPage() {
       };
       
       localStorage.setItem('selectedTemplate', JSON.stringify(templateData));
-      console.log('Template stored in localStorage:', templateData);
       
       toast.success(`Template "${template.name}" loaded successfully!`);
       
@@ -177,7 +174,16 @@ export default function TemplatesPage() {
                     width={200}
                     height={100}
                     className="w-full h-auto max-h-[100px] object-contain rounded"
+                    onError={(e) => {
+                      console.log(`Failed to load image: ${template.thumbnail}`);
+                      // Fallback to a simple text placeholder
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
                   />
+                  {/* Fallback text that shows if image fails to load */}
+                  <div className="text-gray-500 text-sm text-center hidden" id={`fallback-${template.id}`}>
+                    {template.name}<br/>Preview
+                  </div>
                 </div>
 
                 {/* Template Info */}

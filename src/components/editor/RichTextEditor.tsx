@@ -80,21 +80,11 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
   useEffect(() => {
     if (editor && content !== undefined) {
       const currentContent = editor.getHTML()
-      console.log('RichTextEditor: Content comparison', { 
-        newContentLength: content.length,
-        currentContentLength: currentContent.length,
-        newContentPreview: content.substring(0, 100) + '...',
-        currentContentPreview: currentContent.substring(0, 100) + '...',
-        areEqual: content === currentContent
-      });
       
       if (content !== currentContent) {
-        console.log('RichTextEditor: Updating editor content...');
-        
         try {
           // Try setting content directly first
           editor.commands.setContent(content);
-          console.log('RichTextEditor: Content set successfully using setContent');
         } catch (error) {
           console.error('RichTextEditor: Error with setContent, trying alternative', error);
           
@@ -102,7 +92,6 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
             // Alternative: Clear and insert
             editor.commands.clearContent();
             editor.commands.insertContent(content);
-            console.log('RichTextEditor: Content inserted successfully using insertContent');
           } catch (fallbackError) {
             console.error('RichTextEditor: All methods failed', fallbackError);
             
@@ -114,7 +103,6 @@ export function RichTextEditor({ content, onChange, placeholder }: RichTextEdito
                 .replace(/style="[^"]*"/g, '');
               
               editor.commands.setContent(simplifiedContent);
-              console.log('RichTextEditor: Simplified content loaded');
             } catch (lastError) {
               console.error('RichTextEditor: Even simplified content failed', lastError);
             }
