@@ -121,8 +121,11 @@ export function GoogleDocsImporter({ onImport }: GoogleDocsImporterProps) {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <FileText className="h-5 w-5" />
-          Import Content
+          Import Newsletter Content
         </CardTitle>
+        <p className="text-sm text-gray-600">
+          Import content for your newsletter from Google Docs or paste it manually
+        </p>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="manual" className="w-full">
@@ -135,30 +138,30 @@ export function GoogleDocsImporter({ onImport }: GoogleDocsImporterProps) {
             <Alert>
               <Copy className="h-4 w-4" />
               <AlertDescription>
-                <strong>Recommended:</strong> Copy and paste your content directly. This works with any source and doesn&apos;t require special permissions.
+                <strong>Recommended:</strong> Copy and paste your newsletter content directly. This works with any source and doesn&apos;t require special permissions.
               </AlertDescription>
             </Alert>
             
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">
-                Title (optional)
+                Newsletter Title (optional)
               </label>
               <Input
                 value={manualTitle}
                 onChange={(e) => setManualTitle(e.target.value)}
-                placeholder="Enter a title for your content"
+                placeholder="Enter a title for your newsletter"
                 className="w-full"
               />
             </div>
             
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">
-                Content
+                Newsletter Content
               </label>
               <Textarea
                 value={manualContent}
                 onChange={(e) => setManualContent(e.target.value)}
-                placeholder="Paste your content here... You can copy from Google Docs, Word, or any other source."
+                placeholder="Paste your newsletter content here... You can copy from Google Docs, Word, or any other source."
                 className="w-full min-h-[200px]"
               />
               <p className="text-xs text-gray-500">
@@ -172,7 +175,7 @@ export function GoogleDocsImporter({ onImport }: GoogleDocsImporterProps) {
               className="w-full flex items-center gap-2"
             >
               <Type className="h-4 w-4" />
-              Import Content
+              Import Newsletter Content
             </Button>
           </TabsContent>
           
@@ -190,15 +193,18 @@ export function GoogleDocsImporter({ onImport }: GoogleDocsImporterProps) {
               <Alert>
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  <strong>Note:</strong> Google Docs import requires additional API permissions. 
-                  If you see authentication errors, the Google OAuth configuration may need to include Google Docs API scopes.
+                  <strong>Google Docs API Import:</strong> This imports newsletter content from Google Docs documents.
+                  <br/>
+                  <strong>Note:</strong> This is NOT for importing email lists/CSV files. This is for importing newsletter article content.
+                  <br/>
+                  <strong>Requirements:</strong> Google Docs API scope must be added to your OAuth configuration and you need to re-authenticate.
                 </AlertDescription>
               </Alert>
             )}
 
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">
-                Google Docs URL
+                Google Docs URL (Newsletter Content Document)
               </label>
               <Input
                 value={docUrl}
@@ -207,7 +213,9 @@ export function GoogleDocsImporter({ onImport }: GoogleDocsImporterProps) {
                 className="w-full"
               />
               <p className="text-xs text-gray-500">
-                Paste the URL of your Google Docs document. Make sure it&apos;s shared with your account or is public.
+                Paste the URL of your Google Docs document containing newsletter content. Make sure it&apos;s shared with your account or is public.
+                <br/>
+                <strong>Note:</strong> This is for newsletter articles, not email lists. For subscriber lists, use the Subscribers page to import CSV files.
               </p>
             </div>
 

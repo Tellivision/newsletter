@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/contexts/AuthContext';
 import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -17,6 +18,7 @@ interface NewsletterData {
 }
 
 export default function NewsletterEditor() {
+  const { user, loading } = useAuth();
   const [newsletter, setNewsletter] = useState<NewsletterData>({
     subject: '',
     content: '',
@@ -134,8 +136,25 @@ export default function NewsletterEditor() {
     }));
   };
 
+  if (loading) {
+    return (
+      <MainLayout title="Newsletter Editor">
+        <div className="flex items-center justify-center h-full">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+      </MainLayout>
+    );
+  }
+
   return (
-    <MainLayout>
+    <MainLayout 
+      title="Newsletter Editor" 
+      user={user ? {
+        name: user.user_metadata?.full_name || user.email || 'User',
+        email: user.email || '',
+        image: user.user_metadata?.avatar_url
+      } : undefined}
+    >
       <div className="p-6 max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
