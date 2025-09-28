@@ -1,68 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseSession, createUnauthorizedResponse } from '@/lib/auth-helpers'
+import { createClient } from '@supabase/supabase-js'
 
-// Mock database - in real app, this would be a proper database
-const mockSubscribers: {
-  id: string
-  email: string
-  first_name?: string
-  last_name?: string
-  status: string
-  created_at: string
-  updated_at?: string
-  tags?: string[]
-}[] = [
-  {
-    id: '1',
-    email: 'john.doe@example.com',
-    first_name: 'John',
-    last_name: 'Doe',
-    status: 'active',
-    created_at: '2024-01-15T10:00:00Z',
-    updated_at: '2024-01-15T10:00:00Z',
-    tags: ['newsletter', 'updates']
-  },
-  {
-    id: '2',
-    email: 'jane.smith@example.com',
-    first_name: 'Jane',
-    last_name: 'Smith',
-    status: 'active',
-    created_at: '2024-01-20T14:30:00Z',
-    updated_at: '2024-01-20T14:30:00Z',
-    tags: ['newsletter']
-  },
-  {
-    id: '3',
-    email: 'bob.wilson@example.com',
-    first_name: 'Bob',
-    last_name: 'Wilson',
-    status: 'inactive',
-    created_at: '2024-01-10T09:15:00Z',
-    updated_at: '2024-02-01T16:45:00Z',
-    tags: ['newsletter', 'promotions']
-  },
-  {
-    id: '4',
-    email: 'alice.johnson@example.com',
-    first_name: 'Alice',
-    last_name: 'Johnson',
-    status: 'active',
-    created_at: '2024-02-05T11:20:00Z',
-    updated_at: '2024-02-05T11:20:00Z',
-    tags: ['updates']
-  },
-  {
-    id: '5',
-    email: 'charlie.brown@example.com',
-    first_name: 'Charlie',
-    last_name: 'Brown',
-    status: 'active',
-    created_at: '2024-02-10T08:45:00Z',
-    updated_at: '2024-02-10T08:45:00Z',
-    tags: ['newsletter', 'updates', 'promotions']
-  }
-]
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+)
 
 // GET - Fetch all subscribers
 export async function GET(request: NextRequest) {
@@ -77,25 +20,53 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get('status')
     const tag = searchParams.get('tag')
 
-    let filteredSubscribers = mockSubscribers
+    let query = supabase
+      .from('subscribers')
+      .select('*')
+      .order('created_at', { ascending: false })
 
     // Filter by status
     if (status && status !== 'all') {
-      filteredSubscribers = filteredSubscribers.filter(sub => sub.status === status)
+      query = query.eq('status', status)
     }
 
     // Filter by tag
     if (tag && tag !== 'all') {
-      filteredSubscribers = filteredSubscribers.filter(sub => sub.tags?.includes(tag) || false)
+      query = query.contains('tags', [tag])
+    }
+
+    const { data: subscribers, error: fetchError } = await query
+
+    if (fetchError) {
+      console.error('Supabase fetch error:', fetchError)
+      return NextResponse.json(
+        { error: 'Failed to fetch subscribers from database' },
+        { status: 500 }
+      )
+    }
+
+    // Get subscriber statistics
+    const { data: stats, error: statsError } = await supabase
+      .rpc('get_subscriber_stats')
+
+    if (statsError) {
+      console.error('Supabase stats error:', statsError)
+    }
+
+    const statsData = stats?.[0] || {
+      total_subscribers: subscribers?.length || 0,
+      active_subscribers: subscribers?.filter(s => s.status === 'active').length || 0,
+      unsubscribed_subscribers: subscribers?.filter(s => s.status === 'unsubscribed').length || 0,
+      bounced_subscribers: subscribers?.filter(s => s.status === 'bounced').length || 0
     }
 
     return NextResponse.json({
-      subscribers: filteredSubscribers,
+      subscribers: subscribers || [],
       stats: {
-        total: mockSubscribers.length,
-        active: mockSubscribers.filter(sub => sub.status === 'active').length,
-        inactive: mockSubscribers.filter(sub => sub.status === 'inactive').length,
-        bounced: mockSubscribers.filter(sub => sub.status === 'bounced').length
+        total: Number(statsData.total_subscribers),
+        active: Number(statsData.active_subscribers),
+        inactive: Number(statsData.unsubscribed_subscribers),
+        bounced: Number(statsData.bounced_subscribers)
       }
     })
 
@@ -119,63 +90,82 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     
-// Handle bulk email import with proper structure
+    // Handle bulk email import
     if (body.action === 'bulk_add' && body.emails) {
       const emails = body.emails as string[]
       const listName = body.listName || `Imported List ${new Date().toLocaleDateString()}`
       
-      // For now, add to mock data (in real app, this would go to Supabase)
-      const newSubscribers = emails.map((email, index) => ({
-        id: `bulk_${Date.now()}_${index}`,
+      // Prepare subscriber data
+      const subscriberData = emails.map(email => ({
         email: email.toLowerCase().trim(),
-        first_name: '',
-        last_name: '',
-        status: 'active' as const,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        tags: ['imported', listName]
+        name: email.split('@')[0], // Use email prefix as default name
+        status: 'active',
+        tags: ['imported', listName],
+        subscribed_at: new Date().toISOString()
       }))
-      
-      // Add to mock database (avoiding duplicates)
-      const existingEmails = new Set(mockSubscribers.map(s => s.email))
-      const uniqueSubscribers = newSubscribers.filter(s => !existingEmails.has(s.email))
-      
-      mockSubscribers.push(...uniqueSubscribers)
+
+      // Insert subscribers (on conflict, do nothing to avoid duplicates)
+      const { data: insertedSubscribers, error: insertError } = await supabase
+        .from('subscribers')
+        .upsert(subscriberData, { 
+          onConflict: 'email',
+          ignoreDuplicates: true 
+        })
+        .select()
+
+      if (insertError) {
+        console.error('Supabase insert error:', insertError)
+        return NextResponse.json(
+          { error: 'Failed to import subscribers to database' },
+          { status: 500 }
+        )
+      }
+
+      const addedCount = insertedSubscribers?.length || 0
       
       return NextResponse.json({ 
-        message: `Successfully added ${uniqueSubscribers.length} new subscribers to "${listName}" (${emails.length - uniqueSubscribers.length} duplicates skipped)`,
-        added_count: uniqueSubscribers.length,
+        message: `Successfully added ${addedCount} new subscribers to "${listName}" (${emails.length - addedCount} duplicates skipped)`,
+        added_count: addedCount,
         total_count: emails.length,
         list_name: listName,
-        subscribers: uniqueSubscribers 
+        subscribers: insertedSubscribers || []
       })
     }
 
-    // Handle subscriber with proper structure for individual adds
+    // Handle individual subscriber with proper structure
     if (body.emails && Array.isArray(body.emails)) {
       const subscriberEmails = body.emails as Array<{email: string; first_name?: string; last_name?: string}>
       
-      const newSubscribers = subscriberEmails.map((sub, index) => ({
-        id: `manual_${Date.now()}_${index}`,
+      const subscriberData = subscriberEmails.map(sub => ({
         email: sub.email.toLowerCase().trim(),
-        first_name: sub.first_name || '',
-        last_name: sub.last_name || '',
-        status: 'active' as const,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-        tags: ['manual']
+        name: sub.first_name && sub.last_name 
+          ? `${sub.first_name} ${sub.last_name}` 
+          : sub.first_name || sub.email.split('@')[0],
+        status: 'active',
+        tags: ['manual'],
+        subscribed_at: new Date().toISOString()
       }))
-      
-      // Add to mock database (avoiding duplicates)
-      const existingEmails = new Set(mockSubscribers.map(s => s.email))
-      const uniqueSubscribers = newSubscribers.filter(s => !existingEmails.has(s.email))
-      
-      mockSubscribers.push(...uniqueSubscribers)
-      
+
+      const { data: insertedSubscribers, error: insertError } = await supabase
+        .from('subscribers')
+        .upsert(subscriberData, { 
+          onConflict: 'email',
+          ignoreDuplicates: true 
+        })
+        .select()
+
+      if (insertError) {
+        console.error('Supabase insert error:', insertError)
+        return NextResponse.json(
+          { error: 'Failed to add subscribers to database' },
+          { status: 500 }
+        )
+      }
+
       return NextResponse.json({
         success: true,
-        subscribers: uniqueSubscribers,
-        message: `Added ${uniqueSubscribers.length} new subscribers`
+        subscribers: insertedSubscribers || [],
+        message: `Added ${insertedSubscribers?.length || 0} new subscribers`
       })
     }
 
@@ -189,26 +179,32 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Check if subscriber already exists
-    const existingSubscriber = mockSubscribers.find(sub => sub.email === email)
-    if (existingSubscriber) {
+    // Create new subscriber
+    const { data: newSubscriber, error: insertError } = await supabase
+      .from('subscribers')
+      .insert({
+        email: email.toLowerCase().trim(),
+        name: name || email.split('@')[0],
+        status: 'active',
+        tags: tags || ['newsletter'],
+        subscribed_at: new Date().toISOString()
+      })
+      .select()
+      .single()
+
+    if (insertError) {
+      if (insertError.code === '23505') { // Unique violation
+        return NextResponse.json(
+          { error: 'Subscriber already exists' },
+          { status: 409 }
+        )
+      }
+      console.error('Supabase insert error:', insertError)
       return NextResponse.json(
-        { error: 'Subscriber already exists' },
-        { status: 409 }
+        { error: 'Failed to add subscriber to database' },
+        { status: 500 }
       )
     }
-
-    // Create new subscriber
-    const newSubscriber = {
-      id: (mockSubscribers.length + 1).toString(),
-      email,
-      first_name: name || email.split('@')[0],
-      status: 'active',
-      created_at: new Date().toISOString(),
-      tags: tags || ['newsletter']
-    }
-
-    mockSubscribers.push(newSubscriber)
 
     return NextResponse.json({
       success: true,
@@ -243,15 +239,18 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
-    const subscriberIndex = mockSubscribers.findIndex(sub => sub.id === id)
-    if (subscriberIndex === -1) {
+    const { error: deleteError } = await supabase
+      .from('subscribers')
+      .delete()
+      .eq('id', id)
+
+    if (deleteError) {
+      console.error('Supabase delete error:', deleteError)
       return NextResponse.json(
-        { error: 'Subscriber not found' },
-        { status: 404 }
+        { error: 'Failed to delete subscriber from database' },
+        { status: 500 }
       )
     }
-
-    mockSubscribers.splice(subscriberIndex, 1)
 
     return NextResponse.json({
       success: true,

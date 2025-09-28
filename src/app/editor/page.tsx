@@ -6,13 +6,12 @@ import { MainLayout } from '@/components/layout/main-layout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Save, Send, Eye, FileText, Users, Calendar } from 'lucide-react';
 import { GoogleDocsImporter } from '@/components/google-docs/GoogleDocsImporter';
-import { CSVImporter } from '@/components/subscribers/CSVImporter';
-import { SheetsImporter } from '@/components/subscribers/SheetsImporter';
+import { SubscriberListManager } from '@/components/subscribers/SubscriberListManager';
 import SendNewsletterModal from '@/components/newsletters/SendNewsletterModal';
 import { RichTextEditor } from '@/components/editor/RichTextEditor';
-import Link from 'next/link';
 
 interface NewsletterData {
   subject: string;
@@ -40,12 +39,11 @@ export default function NewsletterEditor() {
       if (templateData) {
         const template = JSON.parse(templateData);
         
-    setNewsletter(prev => ({
-      ...prev,
-      subject: template.subject || '',
-      content: template.content || '',
-      previewText: template.previewText || ''
-    }));
+        setNewsletter(() => ({
+          subject: template.subject || '',
+          content: template.content || '',
+          previewText: template.previewText || ''
+        }));
         
         // Clear the template from storage after loading
         localStorage.removeItem('selectedTemplate');
@@ -78,35 +76,11 @@ export default function NewsletterEditor() {
       // Fallback to mock data if API fails
       setSubscribers([
         'user1@example.com',
-        'user2@example.com', 
+        'user2@example.com',
         'user3@example.com'
       ]);
       setSubscriberStats({ total: 3, active: 3 });
     }
-  };
-
-
-
-  const convertToHtml = (content: string) => {
-    // If content is already HTML (from rich text editor), convert Tailwind classes to inline styles
-    if (content.includes('<p>') || content.includes('<h1>') || content.includes('<strong>')) {
-      return content
-        // Convert Tailwind list classes to inline styles for email compatibility
-        .replace(/class="list-disc list-inside space-y-1"/g, 'style="list-style-type: disc; padding-left: 20px; margin: 10px 0;"')
-        .replace(/class="list-decimal list-inside space-y-1"/g, 'style="list-style-type: decimal; padding-left: 20px; margin: 10px 0;"')
-        .replace(/class="text-blue-600 underline"/g, 'style="color: #2563eb; text-decoration: underline;"')
-        // Add margin to list items for proper spacing
-        .replace(/<li>/g, '<li style="margin-bottom: 8px;">');
-    }
-    
-    // Fallback for plain text content
-    return content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" style="color: #2563eb; text-decoration: underline;">$1</a>')
-      .replace(/^- (.+)$/gm, '<li style="margin-bottom: 8px;">$1</li>')
-      .replace(/((<li.*?<\/li>\s*)+)/g, '<ul style="list-style-type: disc; padding-left: 20px; margin: 10px 0;">$1</ul>')
-      .replace(/\n/g, '<br />');
   };
 
   const handleSave = async () => {
@@ -114,14 +88,9 @@ export default function NewsletterEditor() {
     // Simulate save operation
     await new Promise(resolve => setTimeout(resolve, 1000));
     setIsSaving(false);
-    alert('Newsletter saved successfully!');
   };
 
   const handleSend = () => {
-    if (!newsletter.subject || !newsletter.content) {
-      alert('Please fill in subject and content before sending.');
-      return;
-    }
     setShowSendModal(true);
   };
 
@@ -129,349 +98,252 @@ export default function NewsletterEditor() {
     setShowPreview(!showPreview);
   };
 
-  const handleGoogleDocsImport = (content: string, title: string) => {
+  const convertToHtml = (content: string) => {
+    // Simple conversion - in production, use a proper markdown/rich text converter
+    return content.replace(/\n/g, '<br>');
+  };
+
+  const handleGoogleDocsImport = (content: string) => {
     setNewsletter(prev => ({
       ...prev,
-      subject: prev.subject || title,
       content: content
     }));
   };
 
-  const handleCSVImport = async (emails: string[], listName?: string) => {
-    try {
-      // Save subscribers to database
-      const response = await fetch('/api/subscribers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          action: 'bulk_add', 
-          emails, 
-          listName: listName || `Imported List ${new Date().toLocaleDateString()}`
-        }),
-      });
-
-      if (response.ok) {
-        const result = await response.json();
-        // Update local subscriber list
-        setSubscribers(prev => {
-          const combined = [...prev, ...emails];
-          return [...new Set(combined)]; // Remove duplicates
-        });
-        
-        // Update stats
-        setSubscriberStats(prev => ({
-          ...prev,
-          total: prev.total + result.added_count,
-          active: prev.active + result.added_count
-        }));
-
-        alert(`${result.message}`);
-      } else {
-        console.error('Failed to save subscribers');
-        alert('Failed to save subscribers to the database');
-      }
-    } catch (error) {
-      console.error('Error importing subscribers:', error);
-      alert('Error importing subscribers');
-    }
-  };
-
   if (loading) {
     return (
-      <MainLayout title="Newsletter Editor">
-        <div className="flex items-center justify-center h-full">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading editor...</p>
         </div>
-      </MainLayout>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h1>
+          <p className="text-gray-600">Please sign in to access the newsletter editor.</p>
+        </div>
+      </div>
     );
   }
 
   return (
-    <MainLayout 
-      title="Newsletter Editor" 
-      user={user ? {
-        name: user.user_metadata?.full_name || user.email || 'User',
-        email: user.email || '',
-        image: user.user_metadata?.avatar_url
-      } : undefined}
-    >
-      <div className="p-6 max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-brand-secondary">Newsletter Editor</h1>
-            <p className="text-brand-primary mt-1">Create and customize your newsletter content</p>
-          </div>
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={togglePreview}
-              className="flex items-center gap-2"
-            >
-              <Eye className="h-4 w-4" />
-              {showPreview ? 'Edit' : 'Preview'}
-            </Button>
-            <Button
-              variant="outline"
-              onClick={handleSave}
-              disabled={isSaving}
-              className="flex items-center gap-2"
-            >
-              <Save className="h-4 w-4" />
-              {isSaving ? 'Saving...' : 'Save Draft'}
-            </Button>
-            <Button
-              onClick={handleSend}
-              className="flex items-center gap-2"
-              disabled={!newsletter.subject || !newsletter.content}
-            >
-              <Send className="h-4 w-4" />
-              Send Newsletter
-            </Button>
-          </div>
-        </div>
+    <MainLayout>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <Tabs defaultValue="create" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="create">Create Newsletter</TabsTrigger>
+            <TabsTrigger value="subscribers">Manage Subscribers</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="create" className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-3xl font-bold text-brand-secondary">Newsletter Editor</h1>
+                <p className="text-brand-primary mt-1">Create and customize your newsletter content</p>
+              </div>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={togglePreview}
+                  className="flex items-center gap-2"
+                >
+                  <Eye className="h-4 w-4" />
+                  {showPreview ? 'Edit' : 'Preview'}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="flex items-center gap-2"
+                >
+                  <Save className="h-4 w-4" />
+                  {isSaving ? 'Saving...' : 'Save Draft'}
+                </Button>
+                <Button
+                  onClick={handleSend}
+                  className="flex items-center gap-2"
+                  disabled={!newsletter.subject || !newsletter.content}
+                >
+                  <Send className="h-4 w-4" />
+                  Send Newsletter
+                </Button>
+              </div>
+            </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-          {/* Main Editor */}
-          <div className="lg:col-span-3">
-            {!showPreview ? (
-              <div className="space-y-6">
-                {/* Import Section */}
-                <div className="grid grid-cols-1 gap-6">
-                  {/* Newsletter Content Import */}
-                  <div>
-                    <GoogleDocsImporter onImport={handleGoogleDocsImport} />
-                  </div>
-                  
-                  {/* Subscriber Management - Side by Side */}
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+              {/* Main Editor */}
+              <div className="lg:col-span-3">
+                {!showPreview ? (
+                  <div className="space-y-6">
+                    {/* Newsletter Content Import */}
                     <div>
-                      <CSVImporter 
-                        onImport={handleCSVImport}
-                        title="CSV Email Import"
-                        description="Upload CSV files with email addresses for your subscriber list"
-                      />
+                      <GoogleDocsImporter onImport={handleGoogleDocsImport} />
                     </div>
-                    <div>
-                      <SheetsImporter onImport={handleCSVImport} />
-                    </div>
-                  </div>
-                  
-                  {/* Subscriber Management Link */}
-                  <Card className="border-blue-200 bg-blue-50">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <Users className="h-8 w-8 text-blue-600" />
-                          <div>
-                            <h3 className="font-semibold text-blue-900">Manage Your Email List</h3>
-                            <p className="text-blue-700 text-sm">View, search, and manage all your imported subscribers</p>
-                          </div>
+                    
+                    {/* Newsletter Details */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <FileText className="h-5 w-5" />
+                          Newsletter Details
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div>
+                          <label className="block text-sm font-medium text-brand-secondary mb-2">
+                            Subject Line
+                          </label>
+                          <Input
+                            value={newsletter.subject}
+                            onChange={(e) => setNewsletter(prev => ({ ...prev, subject: e.target.value }))}
+                            placeholder="Enter your newsletter subject..."
+                            className="w-full"
+                          />
                         </div>
-                        <Link href="/subscribers">
-                          <Button className="bg-blue-600 hover:bg-blue-700 text-white">
-                            <Users className="h-4 w-4 mr-2" />
-                            View Subscribers
-                          </Button>
-                        </Link>
+                        <div>
+                          <label className="block text-sm font-medium text-brand-secondary mb-2">
+                            Preview Text
+                          </label>
+                          <Input
+                            value={newsletter.previewText}
+                            onChange={(e) => setNewsletter(prev => ({ ...prev, previewText: e.target.value }))}
+                            placeholder="Brief preview text that appears in email clients..."
+                            className="w-full"
+                          />
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Content Editor */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Newsletter Content</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <RichTextEditor
+                          content={newsletter.content}
+                          onChange={(content) => setNewsletter(prev => ({ ...prev, content }))}
+                          placeholder="Start writing your newsletter content..."
+                        />
+                      </CardContent>
+                    </Card>
+                  </div>
+                ) : (
+                  /* Preview Mode */
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Newsletter Preview</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="bg-white border rounded-lg p-6 max-w-2xl mx-auto">
+                        <div className="border-b pb-4 mb-4">
+                          <h2 className="text-2xl font-bold text-brand-secondary">{newsletter.subject || 'Newsletter Subject'}</h2>
+                          {newsletter.previewText && (
+                            <p className="text-brand-primary mt-2">{newsletter.previewText}</p>
+                          )}
+                        </div>
+                        <div 
+                          className="prose max-w-none"
+                          dangerouslySetInnerHTML={{ __html: convertToHtml(newsletter.content) || '<p>Newsletter content will appear here...</p>' }}
+                        />
                       </div>
                     </CardContent>
                   </Card>
-                </div>
-
-                {/* Newsletter Details */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <FileText className="h-5 w-5" />
-                      Newsletter Details
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-brand-secondary mb-2">
-                        Subject Line
-                      </label>
-                      <Input
-                        value={newsletter.subject}
-                        onChange={(e) => setNewsletter(prev => ({ ...prev, subject: e.target.value }))}
-                        placeholder="Enter your newsletter subject..."
-                        className="w-full"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-brand-secondary mb-2">
-                        Preview Text
-                      </label>
-                      <Input
-                        value={newsletter.previewText}
-                        onChange={(e) => setNewsletter(prev => ({ ...prev, previewText: e.target.value }))}
-                        placeholder="Brief preview text that appears in email clients..."
-                        className="w-full"
-                      />
-                    </div>
-                  </CardContent>
-                </Card>
-
-                {/* Content Editor */}
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Newsletter Content</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <RichTextEditor
-                      content={newsletter.content}
-                      onChange={(content) => setNewsletter(prev => ({ ...prev, content }))}
-                      placeholder="Start writing your newsletter content..."
-                    />
-                  </CardContent>
-                </Card>
+                )}
               </div>
-            ) : (
-              /* Preview Mode */
-              <Card>
-                <CardHeader>
-                  <CardTitle>Newsletter Preview</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="bg-white border rounded-lg p-6 max-w-2xl mx-auto">
-                    <div className="border-b pb-4 mb-4">
-                      <h2 className="text-2xl font-bold text-brand-secondary">{newsletter.subject || 'Newsletter Subject'}</h2>
-                      {newsletter.previewText && (
-                        <p className="text-brand-primary mt-2">{newsletter.previewText}</p>
-                      )}
-                    </div>
-                    <div 
-                      className="prose max-w-none"
-                      dangerouslySetInnerHTML={{ __html: convertToHtml(newsletter.content) || '<p>Newsletter content will appear here...</p>' }}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-          </div>
 
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Quick Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-5 w-5" />
-                  Audience
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-brand-primary">Total Subscribers</span>
-                    <span className="font-semibold text-brand-secondary">{subscriberStats.total}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-brand-primary">Active Subscribers</span>
-                    <span className="font-semibold text-brand-secondary">{subscriberStats.active}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-brand-primary">Expected Reach</span>
-                    <span className="font-semibold text-brand-primary">~{Math.floor(subscriberStats.active * 0.95)}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              {/* Sidebar */}
+              <div className="lg:col-span-1">
+                <div className="space-y-6">
+                  {/* Templates Link */}
+                  <Card className="border-purple-200 bg-purple-50">
+                    <CardContent className="p-4">
+                      <div className="text-center">
+                        <div className="mb-3">
+                          <FileText className="h-8 w-8 text-purple-600 mx-auto" />
+                        </div>
+                        <h3 className="font-semibold text-purple-900 mb-2">Use a Template</h3>
+                        <p className="text-purple-700 text-sm mb-3">Start with a professional template</p>
+                        <Button
+                          asChild
+                          className="w-full bg-purple-600 hover:bg-purple-700 text-white"
+                        >
+                          <a href="/templates" target="_blank">
+                            Browse Templates
+                          </a>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-            {/* Schedule */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5" />
-                  Schedule
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    onClick={() => setShowSendModal(true)}
-                    disabled={!newsletter.subject || !newsletter.content}
-                  >
-                    Send Now
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-start"
-                    onClick={() => setShowSendModal(true)}
-                    disabled={!newsletter.subject || !newsletter.content}
-                  >
-                    Schedule for Later
-                  </Button>
-                  <div className="text-xs text-gray-500 mt-2">
-                    Best time to send: Tuesday 10:00 AM
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+                  {/* Subscriber Stats */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Users className="h-5 w-5" />
+                        Subscriber Stats
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-3">
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600">Total:</span>
+                          <span className="font-semibold">{subscriberStats.total}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-sm text-gray-600">Active:</span>
+                          <span className="font-semibold text-green-600">{subscriberStats.active}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
 
-            {/* Templates */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Quick Templates</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full justify-start text-xs"
-                    onClick={() => setNewsletter(prev => ({
-                      ...prev,
-                      content: '<h2>Welcome to our Newsletter!</h2><p>Thank you for subscribing. Here\'s what\'s new...</p>'
-                    }))}
-                  >
-                    Welcome Template
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full justify-start text-xs"
-                    onClick={() => setNewsletter(prev => ({
-                      ...prev,
-                      content: '<h2>Weekly Update</h2><p>Here are the highlights from this week...</p>'
-                    }))}
-                  >
-                    Weekly Update
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="w-full justify-start text-xs"
-                    onClick={() => setNewsletter(prev => ({
-                      ...prev,
-                      content: '<h2>Product Announcement</h2><p>We\'re excited to announce...</p>'
-                    }))}
-                  >
-                    Product News
-                  </Button>
+                  {/* Quick Actions */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Quick Actions</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      <Button 
+                        variant="outline" 
+                        className="w-full justify-start" 
+                        asChild
+                      >
+                        <a href="/newsletters/scheduled">
+                          <Calendar className="h-4 w-4 mr-2" />
+                          Scheduled Newsletters
+                        </a>
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="subscribers" className="space-y-6">
+            <SubscriberListManager onSubscriberUpdate={fetchSubscribers} />
+          </TabsContent>
+        </Tabs>
+
+        {/* Send Newsletter Modal */}
+        <SendNewsletterModal
+          isOpen={showSendModal}
+          onClose={() => setShowSendModal(false)}
+          newsletter={{
+            subject: newsletter.subject,
+            content: convertToHtml(newsletter.content),
+            previewText: newsletter.previewText
+          }}
+          subscribers={subscribers}
+        />
       </div>
-
-      {/* Send Newsletter Modal */}
-      <SendNewsletterModal
-        isOpen={showSendModal}
-        onClose={() => setShowSendModal(false)}
-        newsletter={{
-          subject: newsletter.subject,
-          content: convertToHtml(newsletter.content),
-          previewText: newsletter.previewText
-        }}
-        subscribers={subscribers}
-      />
     </MainLayout>
   );
 }
