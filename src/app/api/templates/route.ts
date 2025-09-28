@@ -155,7 +155,29 @@ const templates = [
     name: 'Event Invitation',
     description: 'Professional template for event announcements',
     category: 'Event',
-    thumbnail: '/templates/event-invitation.svg',
+    thumbnail: 'data:image/svg+xml;base64,' + Buffer.from(`<svg width="300" height="200" viewBox="0 0 300 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#f8f9fa"/>
+  <rect width="300" height="50" fill="url(#gradient3)"/>
+  <defs>
+    <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <text x="150" y="30" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">You're Invited!</text>
+  <text x="150" y="75" text-anchor="middle" fill="#333" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Event Name</text>
+  <rect x="30" y="90" width="240" height="60" fill="#f8f9fa" stroke="#e5e7eb" rx="6"/>
+  <circle cx="50" cy="110" r="8" fill="#667eea"/>
+  <rect x="46" y="106" width="8" height="8" fill="white" rx="1"/>
+  <text x="70" y="110" fill="#333" font-family="Arial, sans-serif" font-size="8" font-weight="bold">Date Time</text>
+  <text x="70" y="120" fill="#666" font-family="Arial, sans-serif" font-size="7">March 15, 2024</text>
+  <circle cx="50" cy="135" r="8" fill="#667eea"/>
+  <circle cx="50" cy="133" r="3" fill="white"/>
+  <text x="70" y="135" fill="#333" font-family="Arial, sans-serif" font-size="8" font-weight="bold">Location</text>
+  <text x="70" y="145" fill="#666" font-family="Arial, sans-serif" font-size="7">Virtual Event</text>
+  <rect x="100" y="165" width="100" height="20" fill="#667eea" rx="10"/>
+  <text x="150" y="177" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="9" font-weight="bold">Reserve Spot</text>
+</svg>`).toString('base64'),
     subject: 'You\'re Invited: {{event_name}} - {{date}}',
     content: `<div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
   <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 40px 20px; text-align: center; color: white;">

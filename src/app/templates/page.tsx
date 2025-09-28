@@ -174,15 +174,25 @@ export default function TemplatesPage() {
                     width={200}
                     height={100}
                     className="w-full h-auto max-h-[100px] object-contain rounded"
+                    unoptimized={template.thumbnail.endsWith('.svg')}
                     onError={(e) => {
                       console.log(`Failed to load image: ${template.thumbnail}`);
-                      // Fallback to a simple text placeholder
-                      (e.target as HTMLImageElement).style.display = 'none';
+                      // Show fallback content
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      const fallback = target.parentElement?.querySelector('.fallback-content') as HTMLElement;
+                      if (fallback) {
+                        fallback.style.display = 'block';
+                      }
                     }}
                   />
-                  {/* Fallback text that shows if image fails to load */}
-                  <div className="text-gray-500 text-sm text-center hidden" id={`fallback-${template.id}`}>
-                    {template.name}<br/>Preview
+                  {/* Fallback content that shows if image fails to load */}
+                  <div className="fallback-content hidden text-center p-4">
+                    <div className="w-16 h-16 bg-blue-100 rounded-lg mx-auto mb-2 flex items-center justify-center">
+                      <span className="text-2xl text-blue-600">📄</span>
+                    </div>
+                    <p className="text-gray-600 text-sm font-medium">{template.name}</p>
+                    <p className="text-gray-500 text-xs">Preview</p>
                   </div>
                 </div>
 

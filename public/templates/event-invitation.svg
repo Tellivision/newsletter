@@ -7,7 +7,7 @@
       <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
     </linearGradient>
   </defs>
-  <text x="150" y="30" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">You're Invited!</text>
+  <text x="150" y="30" text-anchor="middle" fill="white" font-family="Arial, sans-serif" font-size="16" font-weight="bold">You&apos;re Invited!</text>
   <text x="150" y="75" text-anchor="middle" fill="#333" font-family="Arial, sans-serif" font-size="14" font-weight="bold">Event Name</text>
   <rect x="30" y="90" width="240" height="60" fill="#f8f9fa" stroke="#e5e7eb" rx="6"/>
   
