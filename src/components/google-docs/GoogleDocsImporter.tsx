@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FileText, Download, AlertCircle, CheckCircle, Copy, Type } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { GoogleDocsAuth } from './GoogleDocsAuth'
 
 interface GoogleDocsImporterProps {
   onImport: (content: string, title: string) => void
@@ -129,8 +130,9 @@ export function GoogleDocsImporter({ onImport }: GoogleDocsImporterProps) {
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="manual" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="manual">Manual Import</TabsTrigger>
+            <TabsTrigger value="google-auth">Google Auth</TabsTrigger>
             <TabsTrigger value="google-docs">Google Docs</TabsTrigger>
           </TabsList>
           
@@ -177,6 +179,10 @@ export function GoogleDocsImporter({ onImport }: GoogleDocsImporterProps) {
               <Type className="h-4 w-4" />
               Import Newsletter Content
             </Button>
+          </TabsContent>
+          
+          <TabsContent value="google-auth" className="space-y-4">
+            <GoogleDocsAuth />
           </TabsContent>
           
           <TabsContent value="google-docs" className="space-y-4">
