@@ -121,7 +121,7 @@ export function SheetsImporter({ onImport }: SheetsImporterProps) {
           </p>
         </div>
 
-        <div className="space-y-2")>
+        <div className="space-y-2">
           <label className="text-sm font-medium text-gray-700">
             Google Sheets URL
           </label>

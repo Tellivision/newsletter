@@ -86,18 +86,18 @@ export async function GET(request: NextRequest) {
 
     // Filter by tag
     if (tag && tag !== 'all') {
-      filteredSubscribers = filteredSubscribers.filter(sub => sub.tags.includes(tag))
+      filteredSubscribers = filteredSubscribers.filter(sub => sub.tags?.includes(tag) || false)
     }
 
-    // Calculate stats
-    const stats = {
-      total: mockSubscribers.length,
-      active: mockSubscribers.filter(sub => sub.status === 'active').length,
-      inactive: mockSubscribers.filter(sub => sub.status === 'inactive').length,
-      bounced: mockSubscribers.filter(sub => sub.status === 'bounced').length
-    }
-
-    return NextResponse.json(filteredSubscribers)
+    return NextResponse.json({
+      subscribers: filteredSubscribers,
+      stats: {
+        total: mockSubscribers.length,
+        active: mockSubscribers.filter(sub => sub.status === 'active').length,
+        inactive: mockSubscribers.filter(sub => sub.status === 'inactive').length,
+        bounced: mockSubscribers.filter(sub => sub.status === 'bounced').length
+      }
+    })
 
   } catch (error) {
     console.error('Subscribers fetch error:', error)
@@ -202,9 +202,9 @@ export async function POST(request: NextRequest) {
     const newSubscriber = {
       id: (mockSubscribers.length + 1).toString(),
       email,
-      name: name || email.split('@')[0],
+      first_name: name || email.split('@')[0],
       status: 'active',
-      subscribedAt: new Date().toISOString(),
+      created_at: new Date().toISOString(),
       tags: tags || ['newsletter']
     }
 
