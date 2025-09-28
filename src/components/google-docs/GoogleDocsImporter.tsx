@@ -9,7 +9,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FileText, Download, AlertCircle, CheckCircle, Copy, Type } from 'lucide-react'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { GoogleDocsAuth } from './GoogleDocsAuth'
 
 interface GoogleDocsImporterProps {
   onImport: (content: string, title: string) => void
@@ -145,20 +144,32 @@ export function GoogleDocsImporter({ onImport }: GoogleDocsImporterProps) {
         </p>
       </CardHeader>
       <CardContent>
+        <Alert className="border-blue-200 bg-blue-50 mb-4">
+          <Copy className="h-4 w-4 text-blue-600" />
+          <AlertDescription className="text-blue-800">
+            <strong>Recommended:</strong> Copy and paste your newsletter content directly from Google Docs. 
+            This is the fastest and most reliable method.
+            <br/><br/>
+            <strong>How to:</strong> Open your Google Doc → Select All (Ctrl+A) → Copy (Ctrl+C) → Paste in the Manual Import tab below.
+          </AlertDescription>
+        </Alert>
+
         <Tabs defaultValue="manual" className="w-full">
-          <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="manual">Manual Import</TabsTrigger>
-            <TabsTrigger value="google-auth">Google Auth</TabsTrigger>
-            <TabsTrigger value="google-docs">Google Docs</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="manual">📋 Manual Import (Recommended)</TabsTrigger>
+            <TabsTrigger value="google-docs">🔗 Direct Import (Advanced)</TabsTrigger>
           </TabsList>
           
           <TabsContent value="manual" className="space-y-4">
-            <Alert>
-              <Copy className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Recommended:</strong> Copy and paste your newsletter content directly. This works with any source and doesn&apos;t require special permissions.
-              </AlertDescription>
-            </Alert>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <h4 className="font-semibold text-green-800 mb-2">✅ Fastest Method</h4>
+              <p className="text-sm text-green-700 mb-3">
+                Copy content directly from Google Docs, Word, or any other source. All formatting will be preserved.
+              </p>
+              <div className="text-xs text-green-600 bg-white rounded p-2 font-mono">
+                Google Docs → Ctrl+A (Select All) → Ctrl+C (Copy) → Paste below
+              </div>
+            </div>
             
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-700">
@@ -183,7 +194,7 @@ export function GoogleDocsImporter({ onImport }: GoogleDocsImporterProps) {
                 className="w-full min-h-[200px]"
               />
               <p className="text-xs text-gray-500">
-                Tip: Copy text from Google Docs (Ctrl+A, Ctrl+C) and paste it here. Basic formatting will be preserved.
+                💡 <strong>Pro tip:</strong> Paste rich content from Google Docs (Ctrl+V) and formatting like bold, italic, and lists will be preserved.
               </p>
             </div>
             
@@ -197,67 +208,33 @@ export function GoogleDocsImporter({ onImport }: GoogleDocsImporterProps) {
             </Button>
           </TabsContent>
           
-          <TabsContent value="google-auth" className="space-y-4">
-            <GoogleDocsAuth />
-          </TabsContent>
-          
           <TabsContent value="google-docs" className="space-y-4">
-            {!user && (
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Please sign in with Google to import documents from Google Docs.
-                </AlertDescription>  
-              </Alert>
-            )}
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>⚠️ Advanced Feature - Currently Unavailable</strong><br/>
+                Direct Google Docs import requires additional OAuth scopes that are complex to configure with Supabase Auth.
+                <br/><br/>
+                <strong>Alternative:</strong> Use the Manual Import tab above - it's faster and more reliable!
+              </AlertDescription>
+            </Alert>
 
-            {user && (
-              <Alert>
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  <strong>Google Docs API Import:</strong> This imports newsletter content from Google Docs documents.
-                  <br/>
-                  <strong>Note:</strong> This is NOT for importing email lists/CSV files. This is for importing newsletter article content.
-                  <br/>
-                  <strong>Requirements:</strong> Google Docs API scope must be added to your OAuth configuration and you need to re-authenticate.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-gray-700">
-                Google Docs URL (Newsletter Content Document)
-              </label>
-              <Input
-                value={docUrl}
-                onChange={(e) => setDocUrl(e.target.value)}
-                placeholder="https://docs.google.com/document/d/your-document-id/edit"
-                className="w-full"
-              />
-              <p className="text-xs text-gray-500">
-                Paste the URL of your Google Docs document containing newsletter content. Make sure it&apos;s shared with your account or is public.
-                <br/>
-                <strong>Note:</strong> This is for newsletter articles, not email lists. For subscriber lists, use the Subscribers page to import CSV files.
-              </p>
+            <div className="bg-gray-50 border rounded-lg p-4">
+              <h4 className="font-semibold text-gray-800 mb-2">Why Manual Import is Better:</h4>
+              <ul className="text-sm text-gray-600 space-y-1">
+                <li>• <strong>Faster:</strong> No authentication setup required</li>
+                <li>• <strong>More reliable:</strong> Works with any document source</li>
+                <li>• <strong>Better formatting:</strong> Preserves rich text formatting</li>
+                <li>• <strong>Privacy-friendly:</strong> No additional permissions needed</li>
+              </ul>
             </div>
 
-            <Button
-              onClick={importFromGoogleDocs}
-              disabled={isImporting || !docUrl.trim()}
-              className="w-full flex items-center gap-2"
-            >
-              <Download className="h-4 w-4" />
-              {isImporting ? 'Importing...' : 'Import from Google Docs'}
-            </Button>
-
-            <div className="text-xs text-gray-500 space-y-1">
-              <p><strong>Supported formats:</strong></p>
-              <ul className="list-disc list-inside space-y-1 ml-2">
-                <li>Text content and paragraphs</li>
-                <li>Basic formatting (bold, italic)</li>
-                <li>Tables (converted to text)</li>
-                <li>Lists and bullet points</li>
-              </ul>
+            <div className="text-center p-8 text-gray-500">
+              <FileText className="h-12 w-12 mx-auto mb-2 text-gray-400" />
+              <p className="text-sm">
+                Direct import feature is temporarily disabled.<br/>
+                Please use Manual Import for the best experience.
+              </p>
             </div>
           </TabsContent>
         </Tabs>
