@@ -39,10 +39,6 @@ export function SubscriberListManager({ onSubscriberUpdate }: SubscriberListMana
   const [newEmail, setNewEmail] = useState('')
   const [newName, setNewName] = useState('')
 
-  useEffect(() => {
-    fetchSubscribers()
-  }, [selectedStatus, fetchSubscribers])
-
   const fetchSubscribers = useCallback(async () => {
     try {
       setLoading(true)
@@ -62,6 +58,10 @@ export function SubscriberListManager({ onSubscriberUpdate }: SubscriberListMana
       setLoading(false)
     }
   }, [selectedStatus])
+
+  useEffect(() => {
+    fetchSubscribers()
+  }, [selectedStatus, fetchSubscribers])
 
   const handleAddSubscriber = async () => {
     if (!newEmail.trim()) return
