@@ -291,7 +291,14 @@ export function SubscriberListManager({ onSubscriberUpdate }: SubscriberListMana
                 ×
               </Button>
             </div>
-            <CSVImporter onImport={handleImport} />
+            <CSVImporter 
+              onImport={handleImport} 
+              onImportComplete={() => {
+                setShowImporter(null)
+                fetchSubscribers()
+                onSubscriberUpdate?.()
+              }}
+            />
           </div>
         </div>
       )}
@@ -309,7 +316,14 @@ export function SubscriberListManager({ onSubscriberUpdate }: SubscriberListMana
                 ×
               </Button>
             </div>
-            <SheetsImporter onImport={handleImport} />
+            <SheetsImporter 
+              onImport={handleImport} 
+              onImportComplete={() => {
+                setShowImporter(null)
+                fetchSubscribers()
+                onSubscriberUpdate?.()
+              }}
+            />
           </div>
         </div>
       )}

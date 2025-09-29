@@ -9,11 +9,12 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 
 interface CSVImporterProps {
   onImport: (emails: string[], listName?: string) => void
+  onImportComplete?: () => void
   title?: string
   description?: string
 }
 
-export function CSVImporter({ onImport, title, description }: CSVImporterProps) {
+export function CSVImporter({ onImport, onImportComplete, title, description }: CSVImporterProps) {
   const [isImporting, setIsImporting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -68,6 +69,11 @@ export function CSVImporter({ onImport, title, description }: CSVImporterProps) 
       onImport(emails, listName || file.name.replace('.csv', ''))
       setSuccess(`Successfully imported ${emails.length} email addresses to list "${listName || file.name.replace('.csv', '')}"`)
       setListName('')
+      
+      // Notify parent component to refresh
+      if (onImportComplete) {
+        onImportComplete()
+      }
     } catch (error) {
       console.error('CSV parsing error:', error)
       setError('Failed to read CSV file. Please make sure it\'s a valid CSV format.')

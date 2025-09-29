@@ -9,9 +9,10 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 
 interface SheetsImporterProps {
   onImport: (emails: string[], listName?: string) => void
+  onImportComplete?: () => void
 }
 
-export function SheetsImporter({ onImport }: SheetsImporterProps) {
+export function SheetsImporter({ onImport, onImportComplete }: SheetsImporterProps) {
   const [sheetsUrl, setSheetsUrl] = useState('')
   const [isImporting, setIsImporting] = useState(false)
   const [error, setError] = useState('')
@@ -69,10 +70,18 @@ export function SheetsImporter({ onImport }: SheetsImporterProps) {
 
       if (data.emails && data.emails.length > 0) {
         const finalListName = listName || `Google Sheets Import ${new Date().toLocaleDateString()}`
-        onImport(data.emails, finalListName)
+        
+        // Call the import handler and then refresh the subscriber list
+        await onImport(data.emails, finalListName)
+        
         setSuccess(`Successfully imported ${data.emails.length} email addresses to list "${finalListName}"`)
         setSheetsUrl('')
         setListName('')
+        
+        // Notify parent component to refresh
+        if (onImportComplete) {
+          onImportComplete()
+        }
       } else {
         setError('No email addresses found in the Google Sheets. Make sure your spreadsheet contains email addresses.')
       }
