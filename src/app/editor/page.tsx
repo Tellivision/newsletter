@@ -31,6 +31,7 @@ export default function NewsletterEditor() {
   const [showSendModal, setShowSendModal] = useState(false);
   const [subscribers, setSubscribers] = useState<string[]>([]);
   const [subscriberStats, setSubscriberStats] = useState({ total: 0, active: 0 });
+  const [templateLoaded, setTemplateLoaded] = useState(false);
 
   const loadTemplateFromStorage = useCallback(() => {
     try {
@@ -38,15 +39,23 @@ export default function NewsletterEditor() {
       
       if (templateData) {
         const template = JSON.parse(templateData);
+        console.log('Loading template data:', template);
         
-        setNewsletter(() => ({
+        setNewsletter({
           subject: template.subject || '',
           content: template.content || '',
           previewText: template.previewText || ''
-        }));
+        });
         
         // Clear the template from storage after loading
         localStorage.removeItem('selectedTemplate');
+        setTemplateLoaded(true);
+        
+        // Show success message
+        console.log('Template loaded successfully');
+        
+        // Auto-hide the notification after 3 seconds
+        setTimeout(() => setTemplateLoaded(false), 3000);
       }
     } catch (error) {
       console.error('Failed to load template:', error);
@@ -57,7 +66,7 @@ export default function NewsletterEditor() {
   useEffect(() => {
     fetchSubscribers();
     loadTemplateFromStorage();
-  }, [loadTemplateFromStorage]);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const fetchSubscribers = async () => {
     try {
@@ -142,6 +151,15 @@ export default function NewsletterEditor() {
           </TabsList>
           
           <TabsContent value="create" className="space-y-6">
+            {templateLoaded && (
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <p className="text-green-800 font-medium">Template loaded successfully!</p>
+                </div>
+              </div>
+            )}
+            
             <div className="flex items-center justify-between">
               <div>
                 <h1 className="text-3xl font-bold text-brand-secondary">Newsletter Editor</h1>
@@ -274,7 +292,7 @@ export default function NewsletterEditor() {
                           asChild
                           className="w-full bg-purple-600 hover:bg-purple-700 text-white"
                         >
-                          <a href="/templates" target="_blank">
+                          <a href="/templates">
                             Browse Templates
                           </a>
                         </Button>
